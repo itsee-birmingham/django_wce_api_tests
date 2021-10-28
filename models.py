@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 from api.models import BaseModel
-from accounts.models import User
 
 
 class Author (BaseModel):
@@ -49,6 +48,10 @@ class Work (BaseModel):
     #                                  on_delete=models.SET_NULL,
     #                                  related_name='works')
 
+    def get_serialization_fields():
+        fields = '__all__'
+        return fields
+
     def get_fields():
         data = {}
         fields = list(Work._meta.get_fields(include_hidden=True))
@@ -65,15 +68,55 @@ class Review (BaseModel):
 
     notes = models.TextField('Notes', null=True, blank=True)
     score = models.IntegerField('Score', null=True, blank=True)
-    work = models.ForeignKey(Work,
+    work = models.ForeignKey('Work',
                              models.PROTECT,
                              related_name='reviews')
-    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                 models.PROTECT,
-                                 related_name='reviewers')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             models.PROTECT,
+                             related_name='reviewers')
+
+    def get_serialization_fields():
+        fields = '__all__'
+        return fields
+
+    def get_fields():
+        data = {}
+        fields = list(Review._meta.get_fields(include_hidden=True))
+        for field in fields:
+            data[field.name] = field.get_internal_type()
+        return data
+
+
+class Decision (BaseModel):
+
+    AVAILABILITY = 'public_or_user'
+
+    work = models.ForeignKey('Work',
+                             models.PROTECT,
+                             related_name='decision')
+    accept = models.BooleanField(null=True)
+    summary_notes = models.TextField('Notes', null=True, blank=True)
+    public = models.BooleanField(null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             models.PROTECT,
+                             related_name='decider')
+
+    def get_serialization_fields():
+        fields = '__all__'
+        return fields
+
+    def get_fields():
+        data = {}
+        fields = list(Decision._meta.get_fields(include_hidden=True))
+        for field in fields:
+            data[field.name] = field.get_internal_type()
+        return data
 
 
 class Edition (BaseModel):
+
+    AVAILABILITY = 'public'
+
     identifier = models.TextField('Identifier', blank=True)
     work = models.ForeignKey('Work',
                              models.PROTECT,
@@ -81,6 +124,10 @@ class Edition (BaseModel):
     year = models.IntegerField('Year', null=True)
     place = models.TextField('Place', blank=True)
     volume = models.TextField('Volume', blank=True)
+
+    def get_serialization_fields():
+        fields = '__all__'
+        return fields
 
     def get_fields():
         data = {}

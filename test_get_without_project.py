@@ -14,6 +14,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIRequestFactory
 from unittest import skip
 from api_tests import models
+from collation import models as collation_models
+from transcriptions import models as transcription_models
 
 User = get_user_model()
 
@@ -97,38 +99,58 @@ class MyAPITestCase(TestCase):
                    }
         self.w3 = models.Work.objects.create(**w3_data)
 
+        d1_data = {'work': self.w1,
+                   'accept': True,
+                   'summary_notes': 'accepted for publication',
+                   'public': True,
+                   'user': self.u4}
+        self.d1 = models.Decision.objects.create(**d1_data)
+
+        d2_data = {'work': self.w2,
+                   'accept': True,
+                   'summary_notes': 'needs further cosideration',
+                   'public': False,
+                   'user': self.u4}
+        self.d2 = models.Decision.objects.create(**d2_data)
+
+        d3_data = {'work': self.w3,
+                   'accept': True,
+                   'summary_notes': 'third review requested',
+                   'user': self.u4}
+        self.d3 = models.Decision.objects.create(**d3_data)
+
         r1_data = {'notes': 'Good',
                    'score': 7,
                    'work': self.w1,
-                   # 'user': self.u1
+                   'user': self.u1
                    }
         self.r1 = models.Review.objects.create(**r1_data)
 
         r2_data = {'notes': 'Great',
                    'score': 10,
                    'work': self.w1,
-                   # 'user': self.u2
+                   'user': self.u2
                    }
         self.r2 = models.Review.objects.create(**r2_data)
 
         r3_data = {'notes': 'Good',
                    'score': 6,
                    'work': self.w2,
-                   # 'user': self.u1
+                   'user': self.u1
                    }
         self.r3 = models.Review.objects.create(**r3_data)
 
         r4_data = {'notes': 'not great',
                    'score': 3,
                    'work': self.w2,
-                   # 'user': self.u3
+                   'user': self.u3
                    }
         self.r4 = models.Review.objects.create(**r4_data)
 
         r5_data = {'notes': 'okay',
                    'score': 5,
                    'work': self.w2,
-                   # 'user': self.u4
+                   'user': self.u4
                    }
         self.r5 = models.Review.objects.create(**r5_data)
     # def add_transcription_data(self):
@@ -482,27 +504,27 @@ class APIItemDetailTestsPublicModels(MyAPITestCase):
 #         response_json = json.loads(response.content.decode('utf8'))
 #         self.assertEqual(response_json['public'], False)
 #         self.assertEqual(response_json['siglum'], self.t3.siglum)
-#
-#
-# class APIItemListTestsPublicOrUserNoPublicField(MyAPITestCase):
-#     base_url = '/api/{}/{}/'
-#     # NB: There is no model that conforms to being 'public_or_user' availability
-#     # and with no public field because that should never happen. So I will
-#     # temporarily make an public one with no public field into a public_or_user one
-#     # using setUp and tearDown (which is why this test is in its own class)
-#
-#     def setUp(self):
-#         transcription_models.Work.AVAILABILITY = 'public_or_user'
-#
-#     def tearDown(self):
-#         transcription_models.Work.AVAILABILITY = 'public'
-#
-#     def test_get_restricted_list_returns_500_for_anonymous_user_if_no_public_field_on_model(self):
-#         # 500 because it makes no sense and is a server config error really
-#         self.add_data()
-#         response = self.client.get(self.base_url.format('transcriptions', 'work'))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 500)
+
+
+class APIItemListTestsPublicOrUserNoPublicField(MyAPITestCase):
+    base_url = '/api/{}/{}/'
+    # NB: There is no model that conforms to being 'public_or_user' availability
+    # and with no public field because that should never happen. So I will
+    # temporarily make an public one with no public field into a public_or_user one
+    # using setUp and tearDown (which is why this test is in its own class)
+
+    def setUp(self):
+        models.Edition.AVAILABILITY = 'public_or_user'
+
+    def tearDown(self):
+        models.Edition.AVAILABILITY = 'public'
+
+    def test_get_restricted_list_returns_500_for_anonymous_user_if_no_public_field_on_model(self):
+        # 500 because it makes no sense and is a server config error really
+        self.add_data()
+        response = self.client.get(self.base_url.format('api_tests', 'edition'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 500)
 
 
 class APIItemListTestsPrivateModels(MyAPITestCase):
@@ -522,84 +544,75 @@ class APIItemListTestsPrivateModels(MyAPITestCase):
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response_json['count'], 1)
         self.assertEqual(len(response_json['results']), 1)
-        self.assertEqual(response_json['results'][0]['identifier'], self.r2.identifier)
+        self.assertEqual(response_json['results'][0]['score'], self.r2.score)
 
-    # def test_get_private_list_returns_all_for_app_superuser(self):
-    #     self.add_data()
+    def test_get_private_list_returns_all_for_app_superuser(self):
+        self.add_data()
+        client = APIClient()
+        login = client.login(username='user3@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'review'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 5)
+        self.assertEqual(len(response_json['results']), 5)
+
+
+class APIItemDetailTestsPrivateModels(MyAPITestCase):
+    base_url = '/api/{}/{}/{}'
+
+    def test_404_returned_if_no_item_for_anonymous_user(self):
+        # use stupidly high id number so its not likely to exist
+        response = self.client.get(self.base_url.format('api_tests', 'decision', 100001))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_returned_for_existing_item_for_anonymous_user(self):
+        # ideally this would return 401
+        self.add_data()
+        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d2.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d3.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+        # now check it returns the public one
+        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d1.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_private_item_returned_for_logged_in_user_if_owner(self):
+        client = APIClient()
+        login = client.login(username='user1@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('transcriptions', 'transcription', self.t3.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['public'], False)
+        self.assertEqual(response_json['user'], self.u1.id)
+        self.assertEqual(response_json['siglum'], self.t3.siglum)
+
+    # def test_404_returned_for_logged_in_user_if_not_owner(self):
+    #     # ideally this would return 403
+    #     client = APIClient()
+    #     login = client.login(username='user1@example.com', password='secret')
+    #     self.assertEqual(login, True)
+    #     response = client.get(self.base_url.format('transcriptions', 'transcription', self.t5.id))
+    #     response_json = json.loads(response.content.decode('utf8'))
+    #     self.assertEqual(response.status_code, 404)
+    #
+    # def test_404_returned_if_no_item_for_logged_in_user(self):
+    #     client = APIClient()
+    #     login = client.login(username='user1@example.com', password='secret')
+    #     self.assertEqual(login, True)
+    #     response = client.get(self.base_url.format('transcriptions', 'transcription', 100001))
+    #     response_json = json.loads(response.content.decode('utf8'))
+    #     self.assertEqual(response.status_code, 404)
+    #
+    # def test_private_item_returned_for_logged_in_superuser_if_not_owner(self):
     #     client = APIClient()
     #     login = client.login(username='user3@example.com', password='secret')
     #     self.assertEqual(login, True)
-    #     response = client.get(self.base_url.format('api_tests', 'review'))
+    #     response = client.get(self.base_url.format('transcriptions', 'transcription', self.t3.id))
     #     response_json = json.loads(response.content.decode('utf8'))
-    #     self.assertEqual(response_json['count'], 5)
-    #     self.assertEqual(len(response_json['results']), 5)
-    #     self.assertEqual(response_json['results'][0]['identifier'], self.t1.identifier)
-    #     self.assertEqual(response_json['results'][1]['identifier'], self.t2.identifier)
-    #     self.assertEqual(response_json['results'][2]['identifier'], self.t3.identifier)
-    #     self.assertEqual(response_json['results'][3]['identifier'], self.t4.identifier)
-    #     self.assertEqual(response_json['results'][4]['identifier'], self.t5.identifier)
-
-
-# class APIItemDetailTestsPrivateModels(MyAPITestCase):
-#     base_url = '/api/{}/{}/{}'
-#     # I don't want the tests to be dependent on too many apps
-#     # As the transcription app is one of the requirements of most of the others
-#     # it would be good if tests were restricted to this app only.
-#     # We don't have any private models in this app so instead I will change the
-#     # status of the transcription model in these tests (and put it back at the end).
-#
-#     def setUp(self):
-#         transcription_models.Work.AVAILABILITY = 'public_or_user'
-#         self.add_data()
-#
-#     def tearDown(self):
-#         transcription_models.Work.AVAILABILITY = 'public'
-#
-#     def test_404_returned_if_no_item_for_anonymous_user(self):
-#         # use stupidly high id number so its not likely to exist
-#         response = self.client.get(self.base_url.format('transcriptions', 'transcription', 100001))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_404_returned_for_existing_item_for_anonymous_user(self):
-#         # ideally this would return 401
-#         response = self.client.get(self.base_url.format('transcriptions', 'transcription', self.t5.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_private_item_returned_for_logged_in_user_if_owner(self):
-#         client = APIClient()
-#         login = client.login(username='user1@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', self.t3.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['public'], False)
-#         self.assertEqual(response_json['user'], self.u1.id)
-#         self.assertEqual(response_json['siglum'], self.t3.siglum)
-#
-#     def test_404_returned_for_logged_in_user_if_not_owner(self):
-#         # ideally this would return 403
-#         client = APIClient()
-#         login = client.login(username='user1@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', self.t5.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_404_returned_if_no_item_for_logged_in_user(self):
-#         client = APIClient()
-#         login = client.login(username='user1@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', 100001))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_private_item_returned_for_logged_in_superuser_if_not_owner(self):
-#         client = APIClient()
-#         login = client.login(username='user3@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', self.t3.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['public'], False)
-#         self.assertNotEqual(response_json['user'], self.u3.id)
-#         self.assertEqual(response_json['siglum'], self.t3.siglum)
+    #     self.assertEqual(response_json['public'], False)
+    #     self.assertNotEqual(response_json['user'], self.u3.id)
+    #     self.assertEqual(response_json['siglum'], self.t3.siglum)

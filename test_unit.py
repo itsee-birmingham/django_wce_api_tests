@@ -11,7 +11,6 @@ from rest_framework.test import APIClient
 from django.db.models import Q
 from api import views
 from api.views import SelectPagePaginator
-from api import models
 from api.serializers import SimpleSerializer
 from api_tests import models
 from api_tests import serializers
