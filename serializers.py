@@ -25,3 +25,15 @@ class DecisionSerializer(api_serializers.BaseModelSerializer):
 
     class Meta:
         model = models.Decision
+
+
+class EditionSerializer(api_serializers.BaseModelSerializer):
+
+    class Meta:
+        model = models.Edition
+
+
+class PublicationPlanSerializer(api_serializers.BaseModelSerializer):
+
+    class Meta:
+        model = models.PublicationPlan

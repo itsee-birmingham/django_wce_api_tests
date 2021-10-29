@@ -43,10 +43,6 @@ class Work (BaseModel):
     author = models.ForeignKey('Author',
                                models.PROTECT,
                                related_name='works')
-    # reviews = models.ManyToManyField(Review,
-    #                                  null=True,
-    #                                  on_delete=models.SET_NULL,
-    #                                  related_name='works')
 
     def get_serialization_fields():
         fields = '__all__'
@@ -115,9 +111,70 @@ class Decision (BaseModel):
         return data
 
 
-class Edition (BaseModel):
+class Project (BaseModel):
 
     AVAILABILITY = 'public'
+
+    managing_editor = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                        models.PROTECT,
+                                        related_name='manager')
+    editors = models.ManyToManyField(settings.AUTH_USER_MODEL,
+                                     related_name='editor_of',
+                                     blank=True)
+    status = models.TextField('Status', null=True, blank=True)
+    genre = models.TextField('Genre', null=True, blank=True)
+    work = models.ManyToManyField('Work',
+                                  related_name='included_in',
+                                  blank=True)
+
+    def get_fields():
+        data = {}
+        fields = list(Decision._meta.get_fields(include_hidden=True))
+        for field in fields:
+            data[field.name] = field.get_internal_type()
+        return data
+
+    def get_user_fields():
+        user_fields = ['editors', 'managing_editor']
+        data = {}
+        fields = list(Project._meta.get_fields(include_hidden=True))
+        for field in fields:
+            if field.name in user_fields:
+                data[field.name] = field.get_internal_type()
+        return data
+
+
+class PublicationPlan (BaseModel):
+
+    AVAILABILITY = 'project'
+
+    SERIALIZER = 'PublicationPlanSerializer'
+
+    project = models.ForeignKey('Project',
+                                models.PROTECT,
+                                related_name='plan')
+    current_stage = models.TextField('Stage', null=True, blank=True)
+    notes = models.TextField('Notes', null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             models.PROTECT,
+                             null=True,
+                             related_name='plan_creator')
+
+    def get_serialization_fields():
+        fields = '__all__'
+        return fields
+
+    def get_fields():
+        data = {}
+        fields = list(PublicationPlan._meta.get_fields(include_hidden=True))
+        for field in fields:
+            data[field.name] = field.get_internal_type()
+        return data
+
+
+class Edition (BaseModel):
+
+    SERIALIZER = 'EditionSerializer'
 
     identifier = models.TextField('Identifier', blank=True)
     work = models.ForeignKey('Work',

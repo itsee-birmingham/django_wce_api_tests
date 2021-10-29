@@ -44,6 +44,36 @@ class APIPostTests(APITestCase):
         user.save()
         return user
 
+    def add_user(self, credentials):
+        if 'public_name' in credentials:
+            public_name = credentials['public_name']
+            del credentials['public_name']
+            user = User.objects.create_user(**credentials)
+            user.save()
+            user.public_name = public_name
+            user.save()
+        else:
+            user = User.objects.create_user(**credentials)
+            user.save()
+        return user
+
+    def add_superuser(self, credentials):
+        g1 = Group(name='api_tests_superusers')
+        g1.save()
+        if 'public_name' in credentials:
+            public_name = credentials['public_name']
+            del credentials['public_name']
+            user = User.objects.create_user(**credentials)
+            user.groups.add(g1)
+            user.save()
+            user.public_name = public_name
+            user.save()
+        else:
+            user = User.objects.create_user(**credentials)
+            user.groups.add(g1)
+            user.save()
+        return user
+
     def add_data_editor_permissions(self, group):
         content_type = ContentType.objects.get_for_model(models.Author)
         permission = Permission.objects.get(content_type=content_type, codename='add_author')
@@ -261,7 +291,7 @@ class APIPostTests(APITestCase):
         self.assertEqual(authors[0].last_modified_by, 'testuser@example.com')
         self.assertNotEqual(authors[0].last_modified_time, None)
 
-    def testDELETEAuthor(self):
+    def test_DELETEAuthor(self):
         a1_data = {'identifier': 'JS1',
                    'name': 'John Smith',
                    'age': 28,
@@ -308,7 +338,7 @@ class APIPostTests(APITestCase):
         self.assertTrue(len(authors) == 1)
         self.assertEqual(authors[0].identifier, a2.identifier)
 
-    def testDELETEWithDeps(self):
+    def test_DELETEWithDeps(self):
 
         a1_data = {'identifier': 'JS1',
                    'name': 'John Smith',
@@ -322,8 +352,6 @@ class APIPostTests(APITestCase):
                    'title': 'My Title',
                    'author': a1}
         w1 = models.Work.objects.create(**w1_data)
-        # w1.author = a1
-        # w1.save()
 
         user = self.addDataManagerUser({'username': 'testuser',
                                         'email': 'testuser@example.com',
@@ -336,3 +364,69 @@ class APIPostTests(APITestCase):
         self.assertEqual(response.status_code, 500)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 1)
+
+    def test_M2MDelete(self):
+
+        # add users
+        self.u1 = self.add_user({'username': 'User1',
+                                 'email': 'user1@example.com',
+                                 'password': 'secret'})
+        self.u2 = self.add_user({'username': 'User2',
+                                 'email': 'user2@example.com',
+                                 'password': 'secret'})
+        self.u3 = self.add_superuser({'username': 'User3',
+                                      'email': 'user3@example.com',
+                                      'password': 'secret'})
+        self.u4 = self.add_user({'username': 'User4',
+                                 'email': 'user4@example.com',
+                                 'password': 'secret'})
+
+        a1_data = {'identifier': 'JS1',
+                   'name': 'John Smith',
+                   'age': 28,
+                   'active': True
+                   }
+        self.a1 = models.Author.objects.create(**a1_data)
+
+        w1_data = {'identifier': 'W1',
+                   'title': 'My First Book',
+                   'author': self.a1
+                   }
+        self.w1 = models.Work.objects.create(**w1_data)
+
+        p1_data = {'managing_editor': self.u4,
+                   'status': 'in press',
+                   'genre': 'sci-fi'}
+        self.p1 = models.Project.objects.create(**p1_data)
+        self.p1.work.add(self.w1.id)
+        self.p1.editors.add(self.u2.id)
+        self.p1.editors.add(self.u3.id)
+        self.p1.save()
+
+        # check not logged in users cannot delete
+        projects = models.Project.objects.all()
+        self.assertTrue(len(projects) == 1)
+        self.assertTrue(len(projects[0].editors.all()) == 2)
+        client = APIClient()
+        urlstring = '%s%s/editors/delete/user/%s' % (self.base_url.format('api_tests', 'project'),
+                                                     self.p1.id,
+                                                     self.u2.id)
+
+        response = client.patch('%s%s/editors/delete/user/%s' % (self.base_url.format('api_tests', 'project'),
+                                                                 self.p1.id,
+                                                                 self.u2.id))
+        self.assertEqual(response.status_code, 403)
+        # check everything is still the same
+        projects = models.Project.objects.all()
+        self.assertTrue(len(projects) == 1)
+        self.assertTrue(len(projects[0].editors.all()) == 2)
+
+        login = client.login(username='user3@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.patch('%s%s/editors/delete/user/%s' % (self.base_url.format('api_tests', 'project'),
+                                                                 self.p1.id,
+                                                                 self.u2.id))
+        print(response)
+        # projects = models.Project.objects.all()
+        # self.assertTrue(len(projects) == 1)
+        # self.assertTrue(len(projects[0].editors.all()) == 1)

@@ -405,15 +405,15 @@ class APIItemListTestsPublicOrUserNoPublicField(MyAPITestCase):
     # using setUp and tearDown (which is why this test is in its own class)
 
     def setUp(self):
-        models.Edition.AVAILABILITY = 'public_or_user'
+        models.Work.AVAILABILITY = 'public_or_user'
+        self.add_data()
 
     def tearDown(self):
-        models.Edition.AVAILABILITY = 'public'
+        models.Work.AVAILABILITY = 'public'
 
     def test_get_restricted_list_returns_500_for_anonymous_user_if_no_public_field_on_model(self):
         # 500 because it makes no sense and is a server config error really
-        self.add_data()
-        response = self.client.get(self.base_url.format('api_tests', 'edition'))
+        response = self.client.get(self.base_url.format('api_tests', 'work'))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 500)
 
