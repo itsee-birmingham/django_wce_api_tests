@@ -19,3 +19,9 @@ class ReviewSerializer(api_serializers.BaseModelSerializer):
 
     class Meta:
         model = models.Review
+
+
+class DecisionSerializer(api_serializers.BaseModelSerializer):
+
+    class Meta:
+        model = models.Decision

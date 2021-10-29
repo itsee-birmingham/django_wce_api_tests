@@ -99,6 +99,12 @@ class MyAPITestCase(TestCase):
                    }
         self.w3 = models.Work.objects.create(**w3_data)
 
+        w4_data = {'identifier': 'W4',
+                   'title': 'Another Great Book',
+                   'author': self.a2
+                   }
+        self.w4 = models.Work.objects.create(**w4_data)
+
         d1_data = {'work': self.w1,
                    'accept': True,
                    'summary_notes': 'accepted for publication',
@@ -107,7 +113,6 @@ class MyAPITestCase(TestCase):
         self.d1 = models.Decision.objects.create(**d1_data)
 
         d2_data = {'work': self.w2,
-                   'accept': True,
                    'summary_notes': 'needs further cosideration',
                    'public': False,
                    'user': self.u4}
@@ -116,8 +121,15 @@ class MyAPITestCase(TestCase):
         d3_data = {'work': self.w3,
                    'accept': True,
                    'summary_notes': 'third review requested',
-                   'user': self.u4}
+                   'user': self.u2}
         self.d3 = models.Decision.objects.create(**d3_data)
+
+        d4_data = {'work': self.w4,
+                   'accept': False,
+                   'summary_notes': 'Not ready yet',
+                   'public': True,
+                   'user': self.u2}
+        self.d4 = models.Decision.objects.create(**d4_data)
 
         r1_data = {'notes': 'Good',
                    'score': 7,
@@ -153,131 +165,13 @@ class MyAPITestCase(TestCase):
                    'user': self.u4
                    }
         self.r5 = models.Review.objects.create(**r5_data)
-    # def add_transcription_data(self):
-    #
-    #     collection_data = {'identifier': 'NT',
-    #                        'name': 'The New Testament',
-    #                        'abbreviation': 'NT'
-    #                        }
-    #     self.collection = transcription_models.Collection.objects.create(**collection_data)
-    #
-    #     work3_data = {'identifier': 'NT_Luke',
-    #                   'name': 'Luke',
-    #                   'collection': self.collection,
-    #                   'sort_value': 3,
-    #                   'abbreviation': 'Luke'
-    #                   }
-    #     self.work3 = transcription_models.Work.objects.create(**work3_data)
-    #
-    #     work4_data = {'identifier': 'NT_John',
-    #                   'name': 'John',
-    #                   'collection': self.collection,
-    #                   'sort_value': 4,
-    #                   'abbreviation': 'John'
-    #                   }
-    #     self.work4 = transcription_models.Work.objects.create(**work4_data)
-    #
-    #     corpus_data = {'identifier': 'NT_GRC',
-    #                    'collection': self.collection,
-    #                    'language': 'grc'
-    #                    }
-    #     self.corpus = transcription_models.Corpus.objects.create(**corpus_data)
-    #
-    #     structure_data = {'work': self.work4,
-    #                       'corpus': self.corpus,
-    #                       'position_in_corpus': 4,
-    #                       'total_chapters': 2,
-    #                       'verses_per_chapter': {'1': 3, '2': 4},
-    #                       'abbreviation': 'John'
-    #                       }
-    #     self.structure = transcription_models.Structure.objects.create(**structure_data)
-    #
-    #     t1_data = {'identifier': 'NT_GRC_01_John',
-    #                'corpus': self.corpus,
-    #                'document_id': '20001',
-    #                'tei': '<TEI/>',
-    #                'source': 'upload',
-    #                'siglum': '01',
-    #                'document_type': 'majuscule',
-    #                'language': 'grc',
-    #                # 'corrector_order': ,
-    #                'total_verses': 7,
-    #                'total_unique_verses': 6,
-    #                # 'user': ,
-    #                'work': self.work4,
-    #                'public': True
-    #                }
-    #     self.t1 = transcription_models.Transcription.objects.create(**t1_data)
-    #
-    #     t2_data = {'identifier': 'NT_GRC_02_John',
-    #                'corpus': self.corpus,
-    #                'document_id': '20002',
-    #                'tei': '<TEI/>',
-    #                'source': 'upload',
-    #                'siglum': '02',
-    #                'document_type': 'majuscule',
-    #                'language': 'grc',
-    #                # 'corrector_order': ,
-    #                'total_verses': 5,
-    #                'total_unique_verses': 5,
-    #                # 'user': ,
-    #                'work': self.work4,
-    #                'public': True
-    #                }
-    #     self.t2 = transcription_models.Transcription.objects.create(**t2_data)
 
-
-
-        # t3_data = {'identifier': 'NT_GRC_03_John',
-        #            'corpus': self.corpus,
-        #            'document_id': '20003',
-        #            'tei': '<TEI/>',
-        #            'source': 'upload',
-        #            'siglum': '03',
-        #            'document_type': 'majuscule',
-        #            'language': 'grc',
-        #            # 'corrector_order': ,
-        #            'total_verses': 5,
-        #            'total_unique_verses': 5,
-        #            'user': self.u1,
-        #            'work': self.work4,
-        #            'public': False
-        #            }
-        # self.t3 = transcription_models.Transcription.objects.create(**t3_data)
-        #
-        # t4_data = {'identifier': 'NT_GRC_04_John',
-        #            'corpus': self.corpus,
-        #            'document_id': '20004',
-        #            'tei': '<TEI/>',
-        #            'source': 'upload',
-        #            'siglum': '04',
-        #            'document_type': 'majuscule',
-        #            'language': 'grc',
-        #            # 'corrector_order': ,
-        #            'total_verses': 5,
-        #            'total_unique_verses': 5,
-        #            'user': self.u2,
-        #            'work': self.work4,
-        #            'public': False
-        #            }
-        # self.t4 = transcription_models.Transcription.objects.create(**t4_data)
-        #
-        # t5_data = {'identifier': 'NT_GRC_05_John',
-        #            'corpus': self.corpus,
-        #            'document_id': '20005',
-        #            'tei': '<TEI/>',
-        #            'source': 'upload',
-        #            'siglum': '05',
-        #            'document_type': 'majuscule',
-        #            'language': 'grc',
-        #            # 'corrector_order': ,
-        #            'total_verses': 5,
-        #            'total_unique_verses': 5,
-        #            'user': self.u3,
-        #            'work': self.work4,
-        #            'public': False
-        #            }
-        # self.t5 = transcription_models.Transcription.objects.create(**t5_data)
+        r6_data = {'notes': 'Looking good',
+                   'score': 8,
+                   'work': self.w3,
+                   'user': self.u4
+                   }
+        self.r6 = models.Review.objects.create(**r6_data)
 
 
 class APIItemListTestsPublicModels(MyAPITestCase):
@@ -343,167 +237,164 @@ class APIItemDetailTestsPublicModels(MyAPITestCase):
         self.assertEqual(response_json['name'], 'John Smith')
 
 
-# class APIItemListTestsPublicOrUserModels(MyAPITestCase):
-#     base_url = '/api/{}/{}/'
-#
-#     def test_get_restricted_list_returns_all_public_for_anonymous_user(self):
-#         self.add_data()
-#         response = self.client.get(self.base_url.format('api_tests', 'review'))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['count'], 2)
-#         self.assertEqual(len(response_json['results']), 2)
-#         self.assertEqual(response_json['results'][0]['score'], 7)
-#         self.assertEqual(response_json['results'][1]['score'], 10)
-#
-#     def test_get_restricted_list_returns_all_public_for_anonymous_user_with_sort(self):
-#         self.add_data()
-#         response = self.client.get('%s?_sort=total_verses' % self.base_url.format('transcriptions', 'transcription'))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['count'], 2)
-#         self.assertEqual(len(response_json['results']), 2)
-#         self.assertEqual(response_json['results'][0]['identifier'], 'NT_GRC_02_John')
-#         self.assertEqual(response_json['results'][1]['identifier'], 'NT_GRC_01_John')
-#
-#     def test_get_restricted_list_returns_all_public_for_anonymous_user_with_filters(self):
-#         self.add_data()
-#         response = self.client.get('%s?total_verses=5' % self.base_url.format('transcriptions', 'transcription'))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['count'], 1)
-#         self.assertEqual(len(response_json['results']), 1)
-#         self.assertEqual(response_json['results'][0]['identifier'], 'NT_GRC_02_John')
-#
-#     def test_get_restricted_list_returns_nothing_for_anonymous_user_if_no_public_items(self):
-#         self.add_data()
-#         # now make the two public ones private
-#         self.t1.public = False
-#         self.t1.save()
-#         self.t2.public = False
-#         self.t2.save()
-#         response = self.client.get(self.base_url.format('transcriptions', 'transcription'))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['count'], 0)
-#         self.assertEqual(len(response_json['results']), 0)
-#
-#     def test_get_restricted_list_returns_public_and_owned_for_logged_in_regular_user(self):
-#         self.add_data()
-#         client = APIClient()
-#         login = client.login(username='user2@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription'))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['count'], 3)
-#         self.assertEqual(len(response_json['results']), 3)
-#         self.assertEqual(response_json['results'][0]['identifier'], self.t1.identifier)
-#         self.assertEqual(response_json['results'][1]['identifier'], self.t2.identifier)
-#         self.assertEqual(response_json['results'][2]['identifier'], self.t4.identifier)
-#
-#     def test_get_restricted_list_returns_public_only_for_logged_in_regular_user_if_no_owned(self):
-#         self.add_data()
-#         client = APIClient()
-#         login = client.login(username='user4@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription'))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['count'], 2)
-#         self.assertEqual(len(response_json['results']), 2)
-#         self.assertEqual(response_json['results'][0]['identifier'], self.t1.identifier)
-#         self.assertEqual(response_json['results'][1]['identifier'], self.t2.identifier)
-#
-#     def test_get_restricted_list_returns_all_for_app_superuser(self):
-#         self.add_data()
-#         client = APIClient()
-#         login = client.login(username='user3@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription'))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['count'], 5)
-#         self.assertEqual(len(response_json['results']), 5)
-#         self.assertEqual(response_json['results'][0]['identifier'], self.t1.identifier)
-#         self.assertEqual(response_json['results'][1]['identifier'], self.t2.identifier)
-#         self.assertEqual(response_json['results'][2]['identifier'], self.t3.identifier)
-#         self.assertEqual(response_json['results'][3]['identifier'], self.t4.identifier)
-#         self.assertEqual(response_json['results'][4]['identifier'], self.t5.identifier)
-#
-#
-# class APIItemDetailTestsPublicOrUserModels(MyAPITestCase):
-#     base_url = '/api/{}/{}/{}'
-#
-#     def setUp(self):
-#         self.add_data()
-#
-#     def test_public_item_returned_for_anonymous_user(self):
-#         response = self.client.get(self.base_url.format('transcriptions', 'transcription', self.t1.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(response_json['public'], True)
-#         self.assertEqual(response_json['siglum'], self.t1.siglum)
-#
-#     def test_404_returned_if_no_item_for_anonymous_user(self):
-#         # stupidly high id number so its not likely to exist
-#         response = self.client.get(self.base_url.format('transcriptions', 'transcription', 100001))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_404_returned_for_private_item_for_anonymous_user(self):
-#         # ideally this would return 401 but that would means much more code being added into the decorator
-#         # The 404 is returned from the api class view
-#         response = self.client.get(self.base_url.format('transcriptions', 'transcription', self.t5.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_public_item_returned_for_logged_in_user(self):
-#         client = APIClient()
-#         login = client.login(username='user1@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', self.t1.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['public'], True)
-#         self.assertEqual(response_json['siglum'], self.t1.siglum)
-#
-#     def test_private_item_returned_for_logged_in_user_if_owner(self):
-#         client = APIClient()
-#         login = client.login(username='user1@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', self.t3.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['public'], False)
-#         self.assertEqual(response_json['siglum'], self.t3.siglum)
-#
-#     def test_404_returned_for_logged_in_user_if_not_owner(self):
-#         # ideally this would return 403 but the filtering we use for item level permissions
-#         # means it doesn't get found
-#         client = APIClient()
-#         login = client.login(username='user1@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', self.t4.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_404_returned_if_no_item_for_logged_in_user(self):
-#         client = APIClient()
-#         login = client.login(username='user1@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', 100001))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_public_item_returned_for_logged_in_superuser(self):
-#         client = APIClient()
-#         login = client.login(username='user3@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', self.t1.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['public'], True)
-#         self.assertEqual(response_json['siglum'], self.t1.siglum)
-#
-#     def test_private_item_returned_for_logged_in_superuser_if_not_owner(self):
-#         client = APIClient()
-#         login = client.login(username='user3@example.com', password='secret')
-#         self.assertEqual(login, True)
-#         response = client.get(self.base_url.format('transcriptions', 'transcription', self.t3.id))
-#         response_json = json.loads(response.content.decode('utf8'))
-#         self.assertEqual(response_json['public'], False)
-#         self.assertEqual(response_json['siglum'], self.t3.siglum)
+class APIItemListTestsPublicOrUserModels(MyAPITestCase):
+    base_url = '/api/{}/{}/'
+
+    def setUp(self):
+        self.add_data()
+
+    def test_get_restricted_list_returns_all_public_for_anonymous_user(self):
+        response = self.client.get(self.base_url.format('api_tests', 'decision'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 2)
+        self.assertEqual(len(response_json['results']), 2)
+        self.assertNotEqual(response_json['results'][0]['summary_notes'], response_json['results'][1]['summary_notes'])
+        self.assertIn(response_json['results'][0]['summary_notes'], [self.d1.summary_notes, self.d4.summary_notes])
+        self.assertIn(response_json['results'][1]['summary_notes'], [self.d1.summary_notes, self.d4.summary_notes])
+
+    def test_get_restricted_list_returns_all_public_for_anonymous_user_with_sort(self):
+        response = self.client.get('%s?_sort=work__id' % self.base_url.format('api_tests', 'decision'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 2)
+        self.assertEqual(len(response_json['results']), 2)
+        self.assertEqual(response_json['results'][0]['summary_notes'], self.d1.summary_notes)
+        self.assertEqual(response_json['results'][1]['summary_notes'], self.d4.summary_notes)
+
+    def test_get_restricted_list_returns_all_public_for_anonymous_user_with_filters(self):
+        response = self.client.get('%s?accept=true' % self.base_url.format('api_tests', 'decision'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 1)
+        self.assertEqual(len(response_json['results']), 1)
+        self.assertEqual(response_json['results'][0]['summary_notes'], self.d1.summary_notes)
+
+    def test_get_restricted_list_returns_nothing_for_anonymous_user_if_no_public_items(self):
+        # now make the two public ones private
+        self.d1.public = False
+        self.d1.save()
+        self.d4.public = False
+        self.d4.save()
+        response = self.client.get(self.base_url.format('api_tests', 'decision'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 0)
+        self.assertEqual(len(response_json['results']), 0)
+
+    def test_get_restricted_list_returns_public_and_owned_for_logged_in_regular_user(self):
+        client = APIClient()
+        login = client.login(username='user4@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 3)
+        self.assertEqual(len(response_json['results']), 3)
+        self.assertNotEqual(response_json['results'][0]['summary_notes'], self.d3.summary_notes)
+        self.assertNotEqual(response_json['results'][1]['summary_notes'], self.d3.summary_notes)
+        self.assertNotEqual(response_json['results'][2]['summary_notes'], self.d3.summary_notes)
+
+    def test_get_restricted_list_returns_public_only_for_logged_in_regular_user_if_not_owned(self):
+        client = APIClient()
+        login = client.login(username='user1@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 2)
+        self.assertEqual(len(response_json['results']), 2)
+        self.assertIn(response_json['results'][0]['summary_notes'], [self.d1.summary_notes, self.d4.summary_notes])
+        self.assertIn(response_json['results'][1]['summary_notes'], [self.d1.summary_notes, self.d4.summary_notes])
+
+    def test_get_restricted_list_returns_all_for_app_superuser(self):
+        client = APIClient()
+        login = client.login(username='user3@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 4)
+        self.assertEqual(len(response_json['results']), 4)
+
+
+class APIItemDetailTestsPublicOrUserModels(MyAPITestCase):
+    base_url = '/api/{}/{}/{}'
+
+    def setUp(self):
+        self.add_data()
+
+    def test_public_item_returned_for_anonymous_user(self):
+        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d1.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_json['public'], True)
+        self.assertEqual(response_json['summary_notes'], self.d1.summary_notes)
+
+    def test_404_returned_if_no_item_for_anonymous_user(self):
+        # stupidly high id number so its not likely to exist
+        response = self.client.get(self.base_url.format('api_tests', 'decision', 100001))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_returned_for_private_item_for_anonymous_user(self):
+        # ideally this would return 401 but that would means much more code being added into the decorator
+        # The 404 is returned from the api class view
+        # item with public set to False
+        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d2.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+        # item does not have public recorded
+        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d3.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_public_item_returned_for_logged_in_user(self):
+        client = APIClient()
+        login = client.login(username='user1@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision', self.d1.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['public'], True)
+        self.assertEqual(response_json['summary_notes'], self.d1.summary_notes)
+
+    def test_private_item_returned_for_logged_in_user_if_owner(self):
+        client = APIClient()
+        login = client.login(username='user4@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision', self.d2.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['public'], False)
+        self.assertEqual(response_json['summary_notes'], self.d2.summary_notes)
+
+    def test_404_returned_for_logged_in_user_if_not_owner(self):
+        # ideally this would return 403 but the filtering we use for item level permissions
+        # means it doesn't get found
+        client = APIClient()
+        login = client.login(username='user1@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision', self.d2.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_returned_if_no_item_for_logged_in_user(self):
+        client = APIClient()
+        login = client.login(username='user1@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision', 100001))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_public_item_returned_for_logged_in_superuser(self):
+        client = APIClient()
+        login = client.login(username='user3@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision', self.d1.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['public'], True)
+        self.assertEqual(response_json['summary_notes'], self.d1.summary_notes)
+
+    def test_private_item_returned_for_logged_in_superuser_if_not_owner(self):
+        client = APIClient()
+        login = client.login(username='user3@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'decision', self.d2.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['public'], False)
+        self.assertEqual(response_json['summary_notes'], self.d2.summary_notes)
 
 
 class APIItemListTestsPublicOrUserNoPublicField(MyAPITestCase):
@@ -530,13 +421,15 @@ class APIItemListTestsPublicOrUserNoPublicField(MyAPITestCase):
 class APIItemListTestsPrivateModels(MyAPITestCase):
     base_url = '/api/{}/{}/'
 
+    def setUp(self):
+        self.add_data()
+
     def test_get_private_list_returns_401_for_anonymous_user(self):
         response = self.client.get(self.base_url.format('api_tests', 'review'))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 401)
 
     def test_get_private_list_returns_owned_only_for_logged_in_regular_user(self):
-        self.add_data()
         client = APIClient()
         login = client.login(username='user2@example.com', password='secret')
         self.assertEqual(login, True)
@@ -547,72 +440,63 @@ class APIItemListTestsPrivateModels(MyAPITestCase):
         self.assertEqual(response_json['results'][0]['score'], self.r2.score)
 
     def test_get_private_list_returns_all_for_app_superuser(self):
-        self.add_data()
         client = APIClient()
         login = client.login(username='user3@example.com', password='secret')
         self.assertEqual(login, True)
         response = client.get(self.base_url.format('api_tests', 'review'))
         response_json = json.loads(response.content.decode('utf8'))
-        self.assertEqual(response_json['count'], 5)
-        self.assertEqual(len(response_json['results']), 5)
+        self.assertEqual(response_json['count'], 6)
+        self.assertEqual(len(response_json['results']), 6)
 
 
 class APIItemDetailTestsPrivateModels(MyAPITestCase):
     base_url = '/api/{}/{}/{}'
 
+    def setUp(self):
+        self.add_data()
+
     def test_404_returned_if_no_item_for_anonymous_user(self):
         # use stupidly high id number so its not likely to exist
-        response = self.client.get(self.base_url.format('api_tests', 'decision', 100001))
+        response = self.client.get(self.base_url.format('api_tests', 'review', 100001))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
 
-    def test_404_returned_for_existing_item_for_anonymous_user(self):
-        # ideally this would return 401
-        self.add_data()
-        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d2.id))
+    def test_401_returned_for_existing_item_for_anonymous_user(self):
+        response = self.client.get(self.base_url.format('api_tests', 'review', self.r2.id))
         response_json = json.loads(response.content.decode('utf8'))
-        self.assertEqual(response.status_code, 404)
-        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d3.id))
-        response_json = json.loads(response.content.decode('utf8'))
-        self.assertEqual(response.status_code, 404)
-        # now check it returns the public one
-        response = self.client.get(self.base_url.format('api_tests', 'decision', self.d1.id))
-        response_json = json.loads(response.content.decode('utf8'))
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 401)
 
     def test_private_item_returned_for_logged_in_user_if_owner(self):
         client = APIClient()
-        login = client.login(username='user1@example.com', password='secret')
+        login = client.login(username='user2@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get(self.base_url.format('transcriptions', 'transcription', self.t3.id))
+        response = client.get(self.base_url.format('api_tests', 'review', self.r2.id))
         response_json = json.loads(response.content.decode('utf8'))
-        self.assertEqual(response_json['public'], False)
-        self.assertEqual(response_json['user'], self.u1.id)
-        self.assertEqual(response_json['siglum'], self.t3.siglum)
+        self.assertEqual(response_json['user'], self.u2.id)
+        self.assertEqual(response_json['score'], self.r2.score)
 
-    # def test_404_returned_for_logged_in_user_if_not_owner(self):
-    #     # ideally this would return 403
-    #     client = APIClient()
-    #     login = client.login(username='user1@example.com', password='secret')
-    #     self.assertEqual(login, True)
-    #     response = client.get(self.base_url.format('transcriptions', 'transcription', self.t5.id))
-    #     response_json = json.loads(response.content.decode('utf8'))
-    #     self.assertEqual(response.status_code, 404)
-    #
-    # def test_404_returned_if_no_item_for_logged_in_user(self):
-    #     client = APIClient()
-    #     login = client.login(username='user1@example.com', password='secret')
-    #     self.assertEqual(login, True)
-    #     response = client.get(self.base_url.format('transcriptions', 'transcription', 100001))
-    #     response_json = json.loads(response.content.decode('utf8'))
-    #     self.assertEqual(response.status_code, 404)
-    #
-    # def test_private_item_returned_for_logged_in_superuser_if_not_owner(self):
-    #     client = APIClient()
-    #     login = client.login(username='user3@example.com', password='secret')
-    #     self.assertEqual(login, True)
-    #     response = client.get(self.base_url.format('transcriptions', 'transcription', self.t3.id))
-    #     response_json = json.loads(response.content.decode('utf8'))
-    #     self.assertEqual(response_json['public'], False)
-    #     self.assertNotEqual(response_json['user'], self.u3.id)
-    #     self.assertEqual(response_json['siglum'], self.t3.siglum)
+    def test_404_returned_for_logged_in_user_if_not_owner(self):
+        # ideally this would return 403
+        client = APIClient()
+        login = client.login(username='user2@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'review', self.r1.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_returned_if_no_item_for_logged_in_user(self):
+        client = APIClient()
+        login = client.login(username='user2@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'review', 100001))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 404)
+
+    def test_private_item_returned_for_logged_in_superuser_if_not_owner(self):
+        client = APIClient()
+        login = client.login(username='user3@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'review', self.r3.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertNotEqual(response_json['user'], self.u3.id)
+        self.assertEqual(response_json['notes'], self.r3.notes)

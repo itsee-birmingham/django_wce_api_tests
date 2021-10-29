@@ -91,6 +91,8 @@ class Decision (BaseModel):
 
     AVAILABILITY = 'public_or_user'
 
+    SERIALIZER = 'DecisionSerializer'
+
     work = models.ForeignKey('Work',
                              models.PROTECT,
                              related_name='decision')
