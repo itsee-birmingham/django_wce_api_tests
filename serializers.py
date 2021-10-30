@@ -37,3 +37,9 @@ class PublicationPlanSerializer(api_serializers.BaseModelSerializer):
 
     class Meta:
         model = models.PublicationPlan
+
+
+class EditorSerializer(api_serializers.BaseModelSerializer):
+
+    class Meta:
+        model = models.Editor

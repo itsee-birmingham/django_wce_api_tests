@@ -159,6 +159,8 @@ class PublicationPlan (BaseModel):
                              models.PROTECT,
                              null=True,
                              related_name='plan_creator')
+    editors = models.ManyToManyField('Editor',
+                                     blank=True)
 
     def get_serialization_fields():
         fields = '__all__'
@@ -167,6 +169,29 @@ class PublicationPlan (BaseModel):
     def get_fields():
         data = {}
         fields = list(PublicationPlan._meta.get_fields(include_hidden=True))
+        for field in fields:
+            data[field.name] = field.get_internal_type()
+        return data
+
+
+class Editor (BaseModel):
+
+    AVAILABILITY = 'public'
+
+    SERIALIZER = 'EditorSerializer'
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             models.PROTECT,
+                             null=True)
+    active = models.BooleanField(null=True)
+
+    def get_serialization_fields():
+        fields = '__all__'
+        return fields
+
+    def get_fields():
+        data = {}
+        fields = list(Editor._meta.get_fields(include_hidden=True))
         for field in fields:
             data[field.name] = field.get_internal_type()
         return data

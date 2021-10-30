@@ -20,7 +20,7 @@ User = get_user_model()
 class APIPostTests(APITestCase):
     base_url = '/api/{}/{}/'
 
-    def addDataManagerUser(self, credentials):
+    def add_data_manager_user(self, credentials):
         try:
             g2 = Group.objects.filter(name='data_managers')[0]
         except IndexError:
@@ -32,7 +32,7 @@ class APIPostTests(APITestCase):
         user.save()
         return user
 
-    def addDataEditorUser(self, credentials):
+    def add_data_editor_user(self, credentials):
         try:
             g2 = Group.objects.filter(name='data_editors')[0]
         except IndexError:
@@ -44,36 +44,6 @@ class APIPostTests(APITestCase):
         user.save()
         return user
 
-    def add_user(self, credentials):
-        if 'public_name' in credentials:
-            public_name = credentials['public_name']
-            del credentials['public_name']
-            user = User.objects.create_user(**credentials)
-            user.save()
-            user.public_name = public_name
-            user.save()
-        else:
-            user = User.objects.create_user(**credentials)
-            user.save()
-        return user
-
-    def add_superuser(self, credentials):
-        g1 = Group(name='api_tests_superusers')
-        g1.save()
-        if 'public_name' in credentials:
-            public_name = credentials['public_name']
-            del credentials['public_name']
-            user = User.objects.create_user(**credentials)
-            user.groups.add(g1)
-            user.save()
-            user.public_name = public_name
-            user.save()
-        else:
-            user = User.objects.create_user(**credentials)
-            user.groups.add(g1)
-            user.save()
-        return user
-
     def add_data_editor_permissions(self, group):
         content_type = ContentType.objects.get_for_model(models.Author)
         permission = Permission.objects.get(content_type=content_type, codename='add_author')
@@ -81,18 +51,6 @@ class APIPostTests(APITestCase):
         content_type = ContentType.objects.get_for_model(models.Author)
         permission = Permission.objects.get(content_type=content_type, codename='change_author')
         group.permissions.add(permission)
-        # group.permissions.add(Permission.objects.get(codename='add_edition'))
-        # group.permissions.add(Permission.objects.get(codename='change_edition'))
-        # group.permissions.add(Permission.objects.get(codename='add_series'))
-        # group.permissions.add(Permission.objects.get(codename='change_series'))
-        # group.permissions.add(Permission.objects.get(codename='add_onlinecorpus'))
-        # group.permissions.add(Permission.objects.get(codename='change_onlinecorpus'))
-        # # work has to take into account content type because of a clash with the transcriptions.work model
-        # content_type = ContentType.objects.get_for_model(models.Work)
-        # permission = Permission.objects.get(content_type=content_type, codename='add_work')
-        # group.permissions.add(permission)
-        # permission = Permission.objects.get(content_type=content_type, codename='change_work')
-        # group.permissions.add(permission)
         group.save()
 
     def add_data_manager_permissions(self, group):
@@ -105,13 +63,22 @@ class APIPostTests(APITestCase):
         content_type = ContentType.objects.get_for_model(models.Author)
         permission = Permission.objects.get(content_type=content_type, codename='delete_author')
         group.permissions.add(permission)
+        content_type = ContentType.objects.get_for_model(models.PublicationPlan)
+        permission = Permission.objects.get(content_type=content_type, codename='add_publicationplan')
+        group.permissions.add(permission)
+        content_type = ContentType.objects.get_for_model(models.PublicationPlan)
+        permission = Permission.objects.get(content_type=content_type, codename='change_publicationplan')
+        group.permissions.add(permission)
+        content_type = ContentType.objects.get_for_model(models.PublicationPlan)
+        permission = Permission.objects.get(content_type=content_type, codename='delete_publicationplan')
+        group.permissions.add(permission)
         group.save()
 
     def test_getUser(self):
-        user = self.addDataEditorUser({'username': 'testuser@example.com',
-                                       'email': 'testuser@example.com',
-                                       'public_name': 'Test User',
-                                       'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser@example.com',
+                                          'email': 'testuser@example.com',
+                                          'public_name': 'Test User',
+                                          'password': 'xyz'})
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
         self.assertEqual(login, True)
@@ -133,10 +100,10 @@ class APIPostTests(APITestCase):
         self.assertEqual(response.status_code, 403)
 
         # now login
-        user = self.addDataEditorUser({'username': 'testuser@example.com',
-                                       'email': 'testuser@example.com',
-                                       'public_name': 'Test User',
-                                       'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser@example.com',
+                                          'email': 'testuser@example.com',
+                                          'public_name': 'Test User',
+                                          'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.add_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -155,9 +122,9 @@ class APIPostTests(APITestCase):
         client.logout()
 
         # now try again but as a different user with no full_name.
-        user2 = self.addDataEditorUser({'username': 'testuser2@example.com',
-                                        'email': 'testuser2@example.com',
-                                        'password': 'xyz'})
+        user2 = self.add_data_editor_user({'username': 'testuser2@example.com',
+                                           'email': 'testuser2@example.com',
+                                           'password': 'xyz'})
         self.assertTrue(user2.has_perm('api_tests.add_author'))
         client2 = APIClient()
         login = client2.login(username='testuser2@example.com', password='xyz')
@@ -203,9 +170,9 @@ class APIPostTests(APITestCase):
         self.assertEqual(response.status_code, 403)
 
         # now login
-        user = self.addDataEditorUser({'username': 'testuser@example.com',
-                                       'email': 'testuser@example.com',
-                                       'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser@example.com',
+                                          'email': 'testuser@example.com',
+                                          'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.change_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -241,9 +208,9 @@ class APIPostTests(APITestCase):
         response = self.client.get(self.base_url.format('api_tests', 'author', a1.id))
         response_json = json.loads(response.content.decode('utf8'))
 
-        user = self.addDataEditorUser({'username': 'testuser',
-                                       'email': 'testuser@example.com',
-                                       'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser',
+                                          'email': 'testuser@example.com',
+                                          'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.change_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -273,9 +240,9 @@ class APIPostTests(APITestCase):
         response_json = json.loads(response.content.decode('utf8'))
         response_json['results'][0]['name'] = 'My new name'
 
-        user = self.addDataEditorUser({'username': 'testuser',
-                                       'email': 'testuser@example.com',
-                                       'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser',
+                                          'email': 'testuser@example.com',
+                                          'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.add_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -314,9 +281,9 @@ class APIPostTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 2)
-        user = self.addDataEditorUser({'username': 'testuser',
-                                       'email': 'testuser@example.com',
-                                       'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser',
+                                          'email': 'testuser@example.com',
+                                          'password': 'xyz'})
         self.assertFalse(user.has_perm('api_tests.delete_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -325,9 +292,9 @@ class APIPostTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 2)
-        user = self.addDataManagerUser({'username': 'testuser2',
-                                        'email': 'testuser2@example.com',
-                                        'password': 'xyz'})
+        user = self.add_data_manager_user({'username': 'testuser2',
+                                           'email': 'testuser2@example.com',
+                                           'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.delete_author'))
         client2 = APIClient()
         login = client2.login(username='testuser2@example.com', password='xyz')
@@ -353,9 +320,9 @@ class APIPostTests(APITestCase):
                    'author': a1}
         w1 = models.Work.objects.create(**w1_data)
 
-        user = self.addDataManagerUser({'username': 'testuser',
-                                        'email': 'testuser@example.com',
-                                        'password': 'xyz'})
+        user = self.add_data_manager_user({'username': 'testuser',
+                                           'email': 'testuser@example.com',
+                                           'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.delete_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -368,18 +335,31 @@ class APIPostTests(APITestCase):
     def test_M2MDelete(self):
 
         # add users
-        self.u1 = self.add_user({'username': 'User1',
-                                 'email': 'user1@example.com',
-                                 'password': 'secret'})
-        self.u2 = self.add_user({'username': 'User2',
-                                 'email': 'user2@example.com',
-                                 'password': 'secret'})
-        self.u3 = self.add_superuser({'username': 'User3',
-                                      'email': 'user3@example.com',
-                                      'password': 'secret'})
-        self.u4 = self.add_user({'username': 'User4',
-                                 'email': 'user4@example.com',
-                                 'password': 'secret'})
+        self.u1 = self.add_data_editor_user({'username': 'User1',
+                                             'email': 'user1@example.com',
+                                             'password': 'secret'})
+        self.u2 = self.add_data_editor_user({'username': 'User2',
+                                             'email': 'user2@example.com',
+                                             'password': 'secret'})
+        self.u3 = self.add_data_editor_user({'username': 'User3',
+                                             'email': 'user3@example.com',
+                                             'password': 'secret'})
+        self.u4 = self.add_data_manager_user({'username': 'User4',
+                                              'email': 'user4@example.com',
+                                              'password': 'secret'})
+
+        e1_data = {'user': self.u1,
+                   'active': True}
+        self.e1 = models.Editor.objects.create(**e1_data)
+        e2_data = {'user': self.u2,
+                   'active': True}
+        self.e2 = models.Editor.objects.create(**e2_data)
+        e3_data = {'user': self.u3,
+                   'active': True}
+        self.e3 = models.Editor.objects.create(**e3_data)
+        e4_data = {'user': self.u4,
+                   'active': True}
+        self.e4 = models.Editor.objects.create(**e4_data)
 
         a1_data = {'identifier': 'JS1',
                    'name': 'John Smith',
@@ -403,30 +383,43 @@ class APIPostTests(APITestCase):
         self.p1.editors.add(self.u3.id)
         self.p1.save()
 
+        pp1_data = {'project': self.p1,
+                    'current_stage': 'in progress'}
+        self.pp1 = models.PublicationPlan.objects.create(**pp1_data)
+        self.pp1.editors.add(self.e1.id)
+        self.pp1.editors.add(self.e2.id)
+        self.pp1.save()
+
         # check not logged in users cannot delete
         projects = models.Project.objects.all()
         self.assertTrue(len(projects) == 1)
         self.assertTrue(len(projects[0].editors.all()) == 2)
         client = APIClient()
-        urlstring = '%s%s/editors/delete/user/%s' % (self.base_url.format('api_tests', 'project'),
-                                                     self.p1.id,
-                                                     self.u2.id)
+        urlstring = '%s%s/editors/delete/editor/%s' % (self.base_url.format('api_tests', 'publicationplan'),
+                                                       self.pp1.id,
+                                                       self.e2.id)
 
-        response = client.patch('%s%s/editors/delete/user/%s' % (self.base_url.format('api_tests', 'project'),
-                                                                 self.p1.id,
-                                                                 self.u2.id))
+        response = client.patch('%s%s/editors/delete/editor/%s' % (self.base_url.format('api_tests',
+                                                                                        'publicationplan'),
+                                                                   self.pp1.id,
+                                                                   self.e2.id))
         self.assertEqual(response.status_code, 403)
         # check everything is still the same
         projects = models.Project.objects.all()
         self.assertTrue(len(projects) == 1)
         self.assertTrue(len(projects[0].editors.all()) == 2)
 
-        login = client.login(username='user3@example.com', password='secret')
+        login = client.login(username='user4@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.patch('%s%s/editors/delete/user/%s' % (self.base_url.format('api_tests', 'project'),
-                                                                 self.p1.id,
-                                                                 self.u2.id))
-        print(response)
-        # projects = models.Project.objects.all()
-        # self.assertTrue(len(projects) == 1)
-        # self.assertTrue(len(projects[0].editors.all()) == 1)
+        response = client.patch('%s%s/editors/delete/editor/%s' % (self.base_url.format('api_tests',
+                                                                                        'publicationplan'),
+                                                                   self.pp1.id,
+                                                                   self.e2.id))
+        publication_plans = models.PublicationPlan.objects.all()
+        self.assertTrue(len(publication_plans) == 1)
+        self.assertTrue(len(publication_plans[0].editors.all()) == 1)
+        # check the editor still exists and only the reference was deleted
+        response = self.client.get(self.base_url.format('api_tests', 'editor', self.e2.id))
+        self.assertEqual(response.status_code, 200)
+        editors = models.Editor.objects.all()
+        self.assertTrue(len(editors) == 4)
