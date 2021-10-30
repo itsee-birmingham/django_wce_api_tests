@@ -80,6 +80,10 @@ class APIPostTests(APITestCase):
                                           'public_name': 'Test User',
                                           'password': 'xyz'})
         client = APIClient()
+        # first if not logged in
+        response = client.get('/api/whoami')
+        self.assertEqual(response.status_code, 401)
+        # then if logged in
         login = client.login(username='testuser@example.com', password='xyz')
         self.assertEqual(login, True)
         response = client.get('/api/whoami')

@@ -155,6 +155,7 @@ class PublicationPlan (BaseModel):
                                 related_name='plan')
     current_stage = models.TextField('Stage', null=True, blank=True)
     notes = models.TextField('Notes', null=True, blank=True)
+    public = models.BooleanField(null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              models.PROTECT,
                              null=True,
