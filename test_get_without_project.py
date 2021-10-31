@@ -68,6 +68,19 @@ class MyAPITestCase(TestCase):
                                  'email': 'user4@example.com',
                                  'password': 'secret'})
 
+        e1_data = {'user': self.u1,
+                   'active': True}
+        self.e1 = models.Editor.objects.create(**e1_data)
+        e2_data = {'user': self.u2,
+                   'active': True}
+        self.e2 = models.Editor.objects.create(**e2_data)
+        e3_data = {'user': self.u3,
+                   'active': True}
+        self.e3 = models.Editor.objects.create(**e3_data)
+        e4_data = {'user': self.u4,
+                   'active': True}
+        self.e4 = models.Editor.objects.create(**e4_data)
+
         a1_data = {'identifier': 'JS1',
                    'name': 'John Smith',
                    'age': 28,
@@ -172,6 +185,92 @@ class MyAPITestCase(TestCase):
                    'user': self.u4
                    }
         self.r6 = models.Review.objects.create(**r6_data)
+
+
+class TestNoAvailabilitySetIsAssignedPrivate(MyAPITestCase):
+    base_url = '/api/{}/{}/'
+
+    def setUp(self):
+        models.Review.AVAILABILITY = None
+        self.add_data()
+
+    def tearDown(self):
+        models.Review.AVAILABILITY = 'private'
+
+    def test_availability_assignment_by_using_not_logged_in_user(self):
+        response = self.client.get(self.base_url.format('api_tests', 'review'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 401)
+
+    def test_user_has_access(self):
+        client = APIClient()
+        login = client.login(username='user1@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'review'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 2)
+
+    def test_superuser_sees_all(self):
+        client = APIClient()
+        login = client.login(username='user3@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'review'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 6)
+
+
+class TestInvalidAvailabilityAssignment(MyAPITestCase):
+    base_url = '/api/{}/{}/'
+
+    def setUp(self):
+        models.Review.AVAILABILITY = 'nonsense'
+        self.add_data()
+
+    def tearDown(self):
+        models.Review.AVAILABILITY = 'private'
+
+    def test_invalid_availability_assignment_by_using_not_logged_in_user(self):
+        response = self.client.get(self.base_url.format('api_tests', 'review'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response_json['message'],
+                         'Internal server error - model availability incompatible with API (code 10005)')
+
+
+class APIItemListTestsLoggedInModels(MyAPITestCase):
+    base_url = '/api/{}/{}/'
+
+    def test_get_list_returns_401_if_not_logged_in(self):
+        self.add_data()
+        response = self.client.get(self.base_url.format('api_tests', 'editor'))
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_list_returns_all_editors_if_logged_in(self):
+        self.add_data()
+        client = APIClient()
+        login = client.login(username='user1@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'editor'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 4)
+
+
+class APIItemDetailTestsLoggedInModels(MyAPITestCase):
+    base_url = '/api/{}/{}/{}'
+
+    def test_get_list_returns_401_if_not_logged_in(self):
+        self.add_data()
+        response = self.client.get(self.base_url.format('api_tests', 'editor', self.e1.id))
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_list_returns_all_editors_if_logged_in(self):
+        self.add_data()
+        client = APIClient()
+        login = client.login(username='user1@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get(self.base_url.format('api_tests', 'editor', self.e2.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['id'], self.e2.id)
 
 
 class APIItemListTestsPublicModels(MyAPITestCase):

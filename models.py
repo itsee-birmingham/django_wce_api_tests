@@ -177,7 +177,7 @@ class PublicationPlan (BaseModel):
 
 class Editor (BaseModel):
 
-    AVAILABILITY = 'public'
+    AVAILABILITY = 'logged_in'
 
     SERIALIZER = 'EditorSerializer'
 
