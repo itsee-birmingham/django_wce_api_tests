@@ -423,7 +423,7 @@ class APIPostTests(APITestCase):
         self.assertTrue(len(publication_plans) == 1)
         self.assertTrue(len(publication_plans[0].editors.all()) == 1)
         # check the editor still exists and only the reference was deleted
-        response = self.client.get(self.base_url.format('api_tests', 'editor', self.e2.id))
+        response = client.get(self.base_url.format('api_tests', 'editor', self.e2.id))
         self.assertEqual(response.status_code, 200)
         editors = models.Editor.objects.all()
         self.assertTrue(len(editors) == 4)

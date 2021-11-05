@@ -318,6 +318,18 @@ class APIItemListTestsPublicModels(MyAPITestCase):
         self.assertEqual(response_json['count'], 2)
         self.assertEqual(len(response_json['results']), 1)
 
+    def test_get_list_returns_correct_data_with_multiple_parameters(self):
+        self.add_data()
+        response = self.client.get('%s?age=28&name=*S*' % self.base_url.format('api_tests', 'author'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 1)
+
+    def test_get_list_returns_correct_data_with_repeated_parameters(self):
+        self.add_data()
+        response = self.client.get('%s?age=<40&age=>30' % self.base_url.format('api_tests', 'author'))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response_json['count'], 1)
+
 
 class APIItemDetailTestsPublicModels(MyAPITestCase):
     base_url = '/api/{}/{}/{}'

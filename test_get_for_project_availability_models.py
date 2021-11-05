@@ -533,9 +533,10 @@ class APIItemListTestsPublicOrProjectModels(MyAPITestCase):
         self.assertEqual(response_json['count'], 1)
         # check that ownership of item does not override project settings
         # (this should never happen in reality and suggests an incorrect availability but it tests code)
-        # login = client.login(username='user4@example.com', password='secret')
-        # self.assertEqual(login, True)
-        # response = client.get(self.base_url.format('api_tests', 'publicationplan'))
-        # response_json = json.loads(response.content.decode('utf8'))
-        # self.assertEqual(response.status_code, 200)
-        # self.assertEqual(response_json['count'], 1)
+        login = client.login(username='user4@example.com', password='secret')
+        self.assertEqual(login, True)
+        response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'),
+                                                         self.p1.id))
+        response_json = json.loads(response.content.decode('utf8'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_json['count'], 2)
