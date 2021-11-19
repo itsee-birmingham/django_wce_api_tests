@@ -10,10 +10,8 @@ from rest_framework.request import Request
 from rest_framework.test import APIClient
 from django.db.models import Q
 from api import views
-from api.views import SelectPagePaginator
 from api.serializers import SimpleSerializer
-from api_tests import models
-from api_tests import serializers
+from api_tests import models, serializers
 
 User = get_user_model()
 
@@ -233,20 +231,20 @@ class APIHelperTests(TestCase):
 
         rf = RequestFactory()
         request = Request(rf.get('/api/citations/author/?limit=2'))
-        paginator = SelectPagePaginator()
+        paginator = views.SelectPagePaginator()
         result = paginator.paginate_queryset_and_get_page(models.Author.objects.all(), request, index_required=3)
         self.assertIn(a3, result[0])
         self.assertEqual(result[1], 2)
 
         # if we are showing all records anyway (this will actually default to 100 because of your default)
         request = Request(rf.get('/api/citations/author'))
-        paginator = SelectPagePaginator()
+        paginator = views.SelectPagePaginator()
         result = paginator.paginate_queryset_and_get_page(models.Author.objects.all(), request, index_required=3)
         self.assertEqual(len(result[0]), 3)
 
         # if we are showing all records anyway (this will actually default to 100 because of your default)
         request = Request(rf.get('/api/citations/works'))
-        paginator = SelectPagePaginator()
+        paginator = views.SelectPagePaginator()
         result = paginator.paginate_queryset_and_get_page(models.Work.objects.all(), request, index_required=3)
         self.assertEqual(result, [])
 
