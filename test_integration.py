@@ -1,6 +1,7 @@
 import json
 import datetime
 from unittest import skip
+from django.conf import settings as django_settings
 from django.utils import timezone
 from django.test import TestCase
 from django.contrib.auth.models import Group
@@ -77,8 +78,10 @@ class APIPostTests(APITestCase):
     def test_getUser(self):
         user = self.add_data_editor_user({'username': 'testuser@example.com',
                                           'email': 'testuser@example.com',
-                                          'public_name': 'Test User',
                                           'password': 'xyz'})
+        if django_settings.USER_ACTION_FIELD:
+            setattr(user, django_settings.USER_ACTION_FIELD, 'Test User')
+            user.save()
         client = APIClient()
         # first if not logged in
         response = client.get('/api/whoami')
@@ -106,8 +109,10 @@ class APIPostTests(APITestCase):
         # now login
         user = self.add_data_editor_user({'username': 'testuser@example.com',
                                           'email': 'testuser@example.com',
-                                          'public_name': 'Test User',
                                           'password': 'xyz'})
+        if django_settings.USER_ACTION_FIELD:
+            setattr(user, django_settings.USER_ACTION_FIELD, 'Test User')
+            user.save()
         self.assertTrue(user.has_perm('api_tests.add_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -119,7 +124,7 @@ class APIPostTests(APITestCase):
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 1)
         self.assertEqual(authors[0].identifier, 'JS1')
-        self.assertEqual(authors[0].created_by, user.public_name)
+        self.assertEqual(authors[0].created_by, getattr(user, django_settings.USER_ACTION_FIELD))
 
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 1)

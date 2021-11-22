@@ -23,33 +23,16 @@ User = get_user_model()
 class MyAPITestCase(TestCase):
 
     def add_user(self, credentials):
-        if 'public_name' in credentials:
-            public_name = credentials['public_name']
-            del credentials['public_name']
-            user = User.objects.create_user(**credentials)
-            user.save()
-            user.public_name = public_name
-            user.save()
-        else:
-            user = User.objects.create_user(**credentials)
-            user.save()
+        user = User.objects.create_user(**credentials)
+        user.save()
         return user
 
     def add_superuser(self, credentials):
         g1 = Group(name='api_tests_superusers')
         g1.save()
-        if 'public_name' in credentials:
-            public_name = credentials['public_name']
-            del credentials['public_name']
-            user = User.objects.create_user(**credentials)
-            user.groups.add(g1)
-            user.save()
-            user.public_name = public_name
-            user.save()
-        else:
-            user = User.objects.create_user(**credentials)
-            user.groups.add(g1)
-            user.save()
+        user = User.objects.create_user(**credentials)
+        user.groups.add(g1)
+        user.save()
         return user
 
     def add_data(self):
