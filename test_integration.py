@@ -3,16 +3,12 @@ import datetime
 from unittest import skip
 from django.conf import settings as django_settings
 from django.utils import timezone
-from django.test import TestCase
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import Permission
+from django.test import TestCase, Client
+from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.test import Client
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
+from rest_framework.test import APIRequestFactory, APIClient, APITestCase
 from rest_framework.authtoken.models import Token
-from rest_framework.test import APIRequestFactory
 from api_tests import models
 
 User = get_user_model()
