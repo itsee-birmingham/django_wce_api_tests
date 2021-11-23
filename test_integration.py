@@ -75,8 +75,8 @@ class APIPostTests(APITestCase):
         user = self.add_data_editor_user({'username': 'testuser@example.com',
                                           'email': 'testuser@example.com',
                                           'password': 'xyz'})
-        if django_settings.USER_ACTION_FIELD:
-            setattr(user, django_settings.USER_ACTION_FIELD, 'Test User')
+        if django_settings.USER_IDENTIFIER_FIELD:
+            setattr(user, django_settings.USER_IDENTIFIER_FIELD, 'Test User')
             user.save()
         client = APIClient()
         # first if not logged in
@@ -106,8 +106,8 @@ class APIPostTests(APITestCase):
         user = self.add_data_editor_user({'username': 'testuser@example.com',
                                           'email': 'testuser@example.com',
                                           'password': 'xyz'})
-        if django_settings.USER_ACTION_FIELD:
-            setattr(user, django_settings.USER_ACTION_FIELD, 'Test User')
+        if django_settings.USER_IDENTIFIER_FIELD:
+            setattr(user, django_settings.USER_IDENTIFIER_FIELD, 'Test User')
             user.save()
         self.assertTrue(user.has_perm('api_tests.add_author'))
         client = APIClient()
@@ -120,7 +120,7 @@ class APIPostTests(APITestCase):
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 1)
         self.assertEqual(authors[0].identifier, 'JS1')
-        self.assertEqual(authors[0].created_by, getattr(user, django_settings.USER_ACTION_FIELD))
+        self.assertEqual(authors[0].created_by, getattr(user, django_settings.USER_IDENTIFIER_FIELD))
 
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 1)
