@@ -40,9 +40,7 @@ class Work (BaseModel):
 
     identifier = models.TextField('Identifier', blank=True)
     title = models.TextField('Title', blank=True)
-    author = models.ForeignKey('Author',
-                               models.PROTECT,
-                               related_name='works')
+    author = models.ForeignKey('Author', models.PROTECT, related_name='works')
 
     def get_serialization_fields():
         fields = '__all__'
@@ -64,12 +62,8 @@ class Review (BaseModel):
 
     notes = models.TextField('Notes', null=True, blank=True)
     score = models.IntegerField('Score', null=True, blank=True)
-    work = models.ForeignKey('Work',
-                             models.PROTECT,
-                             related_name='reviews')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             models.PROTECT,
-                             related_name='reviewers')
+    work = models.ForeignKey('Work', models.PROTECT, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, related_name='reviewers')
 
     def get_serialization_fields():
         fields = '__all__'
@@ -89,15 +83,11 @@ class Decision (BaseModel):
 
     SERIALIZER = 'DecisionSerializer'
 
-    work = models.ForeignKey('Work',
-                             models.PROTECT,
-                             related_name='decision')
+    work = models.ForeignKey('Work', models.PROTECT, related_name='decision')
     accept = models.BooleanField(null=True)
     summary_notes = models.TextField('Notes', null=True, blank=True)
     public = models.BooleanField(null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             models.PROTECT,
-                             related_name='decider')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, related_name='decider')
 
     def get_serialization_fields():
         fields = '__all__'
@@ -115,17 +105,11 @@ class Project (BaseModel):
 
     AVAILABILITY = 'public'
 
-    managing_editor = models.ForeignKey(settings.AUTH_USER_MODEL,
-                                        models.PROTECT,
-                                        related_name='manager')
-    editors = models.ManyToManyField(settings.AUTH_USER_MODEL,
-                                     related_name='editor_of',
-                                     blank=True)
+    managing_editor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, related_name='manager')
+    editors = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='editor_of', blank=True)
     status = models.TextField('Status', null=True, blank=True)
     genre = models.TextField('Genre', null=True, blank=True)
-    work = models.ManyToManyField('Work',
-                                  related_name='included_in',
-                                  blank=True)
+    work = models.ManyToManyField('Work', related_name='included_in', blank=True)
 
     def get_fields():
         data = {}
@@ -150,18 +134,12 @@ class PublicationPlan (BaseModel):
 
     SERIALIZER = 'PublicationPlanSerializer'
 
-    project = models.ForeignKey('Project',
-                                models.PROTECT,
-                                related_name='plan')
+    project = models.ForeignKey('Project', models.PROTECT, related_name='plan')
     current_stage = models.TextField('Stage', null=True, blank=True)
     notes = models.TextField('Notes', null=True, blank=True)
     public = models.BooleanField(null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             models.PROTECT,
-                             null=True,
-                             related_name='plan_creator')
-    editors = models.ManyToManyField('Editor',
-                                     blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, null=True, related_name='plan_creator')
+    editors = models.ManyToManyField('Editor', blank=True)
 
     def get_serialization_fields():
         fields = '__all__'
@@ -181,9 +159,7 @@ class Editor (BaseModel):
 
     SERIALIZER = 'EditorSerializer'
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             models.PROTECT,
-                             null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, null=True)
     active = models.BooleanField(null=True)
 
     def get_serialization_fields():
@@ -203,9 +179,7 @@ class Edition (BaseModel):
     SERIALIZER = 'EditionSerializer'
 
     identifier = models.TextField('Identifier', blank=True)
-    work = models.ForeignKey('Work',
-                             models.PROTECT,
-                             related_name='editions')
+    work = models.ForeignKey('Work', models.PROTECT, related_name='editions')
     year = models.IntegerField('Year', null=True)
     place = models.TextField('Place', blank=True)
     volume = models.TextField('Volume', blank=True)

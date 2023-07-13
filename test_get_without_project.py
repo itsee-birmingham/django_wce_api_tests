@@ -1,16 +1,9 @@
 import json
-from django.utils import timezone
-from django.test import TestCase, Client
-from django.apps import apps
-from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
+from django.test import TestCase
+from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient, APIRequestFactory
-from rest_framework.authtoken.models import Token
-from unittest import skip
+from rest_framework.test import APIClient
 from api_tests import models
-from collation import models as collation_models
-from transcriptions import models as transcription_models
 
 
 User = get_user_model()
@@ -178,7 +171,7 @@ class TestNoAvailabilitySetIsAssignedPrivate(MyAPITestCase):
 
     def test_availability_assignment_by_using_not_logged_in_user(self):
         response = self.client.get(self.base_url.format('api_tests', 'review'))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 401)
 
     def test_user_has_access(self):
@@ -417,7 +410,7 @@ class APIItemDetailTestsPublicOrUserModels(MyAPITestCase):
     def test_404_returned_if_no_item_for_anonymous_user(self):
         # stupidly high id number so its not likely to exist
         response = self.client.get(self.base_url.format('api_tests', 'decision', 100001))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
 
     def test_404_returned_for_private_item_for_anonymous_user(self):
@@ -425,11 +418,11 @@ class APIItemDetailTestsPublicOrUserModels(MyAPITestCase):
         # The 404 is returned from the api class view
         # item with public set to False
         response = self.client.get(self.base_url.format('api_tests', 'decision', self.d2.id))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
         # item does not have public recorded
         response = self.client.get(self.base_url.format('api_tests', 'decision', self.d3.id))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
 
     def test_public_item_returned_for_logged_in_user(self):
@@ -457,7 +450,7 @@ class APIItemDetailTestsPublicOrUserModels(MyAPITestCase):
         login = client.login(username='user1@example.com', password='secret')
         self.assertEqual(login, True)
         response = client.get(self.base_url.format('api_tests', 'decision', self.d2.id))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
 
     def test_404_returned_if_no_item_for_logged_in_user(self):
@@ -465,7 +458,7 @@ class APIItemDetailTestsPublicOrUserModels(MyAPITestCase):
         login = client.login(username='user1@example.com', password='secret')
         self.assertEqual(login, True)
         response = client.get(self.base_url.format('api_tests', 'decision', 100001))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
 
     def test_public_item_returned_for_logged_in_superuser(self):
@@ -504,7 +497,7 @@ class APIItemListTestsPublicOrUserNoPublicField(MyAPITestCase):
     def test_get_restricted_list_returns_500_for_anonymous_user_if_no_public_field_on_model(self):
         # 500 because it makes no sense and is a server config error really
         response = self.client.get(self.base_url.format('api_tests', 'work'))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 500)
 
 
@@ -516,7 +509,7 @@ class APIItemListTestsPrivateModels(MyAPITestCase):
 
     def test_get_private_list_returns_401_for_anonymous_user(self):
         response = self.client.get(self.base_url.format('api_tests', 'review'))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 401)
 
     def test_get_private_list_returns_owned_only_for_logged_in_regular_user(self):
@@ -548,12 +541,12 @@ class APIItemDetailTestsPrivateModels(MyAPITestCase):
     def test_404_returned_if_no_item_for_anonymous_user(self):
         # use stupidly high id number so its not likely to exist
         response = self.client.get(self.base_url.format('api_tests', 'review', 100001))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
 
     def test_401_returned_for_existing_item_for_anonymous_user(self):
         response = self.client.get(self.base_url.format('api_tests', 'review', self.r2.id))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 401)
 
     def test_private_item_returned_for_logged_in_user_if_owner(self):
@@ -571,7 +564,7 @@ class APIItemDetailTestsPrivateModels(MyAPITestCase):
         login = client.login(username='user2@example.com', password='secret')
         self.assertEqual(login, True)
         response = client.get(self.base_url.format('api_tests', 'review', self.r1.id))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
 
     def test_404_returned_if_no_item_for_logged_in_user(self):
@@ -579,7 +572,7 @@ class APIItemDetailTestsPrivateModels(MyAPITestCase):
         login = client.login(username='user2@example.com', password='secret')
         self.assertEqual(login, True)
         response = client.get(self.base_url.format('api_tests', 'review', 100001))
-        response_json = json.loads(response.content.decode('utf8'))
+        json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 404)
 
     def test_private_item_returned_for_logged_in_superuser_if_not_owner(self):

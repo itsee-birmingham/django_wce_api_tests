@@ -1,6 +1,6 @@
 # The API Tests App
 
-These tests focus on the server side implementation of the API. There are no tests for the JavaScript code.
+These tests focus on the server side implementation of the API. There are no tests yet for the JavaScript code.
 
 As this app is only used for testing it should not be listed in the installed apps for the general application.
 Instead it should be installed only when the tests are being run.

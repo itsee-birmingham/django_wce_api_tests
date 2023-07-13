@@ -1,14 +1,11 @@
 import json
 import datetime
-from unittest import skip
 from django.conf import settings as django_settings
 from django.utils import timezone
-from django.test import TestCase, Client
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIRequestFactory, APIClient, APITestCase
-from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient, APITestCase
 from api_tests import models
 
 User = get_user_model()
@@ -323,7 +320,7 @@ class APIPostTests(APITestCase):
         w1_data = {'identifier': 'W1',
                    'title': 'My Title',
                    'author': a1}
-        w1 = models.Work.objects.create(**w1_data)
+        models.Work.objects.create(**w1_data)
 
         user = self.add_data_manager_user({'username': 'testuser',
                                            'email': 'testuser@example.com',
@@ -388,8 +385,7 @@ class APIPostTests(APITestCase):
         self.p1.editors.add(self.u3.id)
         self.p1.save()
 
-        pp1_data = {'project': self.p1,
-                    'current_stage': 'in progress'}
+        pp1_data = {'project': self.p1, 'current_stage': 'in progress'}
         self.pp1 = models.PublicationPlan.objects.create(**pp1_data)
         self.pp1.editors.add(self.e1.id)
         self.pp1.editors.add(self.e2.id)
@@ -400,14 +396,11 @@ class APIPostTests(APITestCase):
         self.assertTrue(len(projects) == 1)
         self.assertTrue(len(projects[0].editors.all()) == 2)
         client = APIClient()
-        urlstring = '%s%s/editors/delete/editor/%s' % (self.base_url.format('api_tests', 'publicationplan'),
-                                                       self.pp1.id,
-                                                       self.e2.id)
+        url_string = '%s%s/editors/delete/editor/%s' % (self.base_url.format('api_tests', 'publicationplan'),
+                                                        self.pp1.id,
+                                                        self.e2.id)
 
-        response = client.patch('%s%s/editors/delete/editor/%s' % (self.base_url.format('api_tests',
-                                                                                        'publicationplan'),
-                                                                   self.pp1.id,
-                                                                   self.e2.id))
+        response = client.patch(url_string)
         self.assertEqual(response.status_code, 403)
         # check everything is still the same
         projects = models.Project.objects.all()
@@ -416,10 +409,7 @@ class APIPostTests(APITestCase):
 
         login = client.login(username='user4@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.patch('%s%s/editors/delete/editor/%s' % (self.base_url.format('api_tests',
-                                                                                        'publicationplan'),
-                                                                   self.pp1.id,
-                                                                   self.e2.id))
+        response = client.patch(url_string)
         publication_plans = models.PublicationPlan.objects.all()
         self.assertTrue(len(publication_plans) == 1)
         self.assertTrue(len(publication_plans[0].editors.all()) == 1)

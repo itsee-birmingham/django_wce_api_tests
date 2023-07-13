@@ -1,13 +1,8 @@
 import json
-from django.utils import timezone
-from django.test import TestCase, Client
-from django.apps import apps
+from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
-from rest_framework.test import APIClient, APIRequestFactory
-from rest_framework.authtoken.models import Token
-from unittest import skip
+from django.contrib.auth.models import Group
+from rest_framework.test import APIClient
 from api_tests import models
 
 User = get_user_model()

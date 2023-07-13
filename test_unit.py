@@ -1,16 +1,11 @@
-import sys
-import os
-import json
 import datetime
 from django.utils import timezone
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.test.client import RequestFactory
 from rest_framework.request import Request
-from rest_framework.test import APIClient
 from django.db.models import Q
 from api import views
-from api.serializers import SimpleSerializer
 from api_tests import models, serializers
 
 User = get_user_model()
@@ -32,7 +27,7 @@ class APIHelperTests(TestCase):
                    'age': 28,
                    'active': True
                    }
-        a1 = models.Author.objects.create(**a1_data)
+        models.Author.objects.create(**a1_data)
         a2_data = {'created_by': 'cat',
                    'created_time': timezone.now(),
                    'identifier': 'JS2',
@@ -40,7 +35,7 @@ class APIHelperTests(TestCase):
                    'age': 34,
                    'active': True
                    }
-        a2 = models.Author.objects.create(**a2_data)
+        models.Author.objects.create(**a2_data)
 
         query_set = models.Author.objects.all()
         count = views.get_count(query_set)
@@ -211,7 +206,7 @@ class APIHelperTests(TestCase):
                    'age': 28,
                    'active': True
                    }
-        a1 = models.Author.objects.create(**a1_data)
+        models.Author.objects.create(**a1_data)
         a2_data = {'created_by': 'cat',
                    'created_time': timezone.now(),
                    'identifier': 'JS2',
@@ -219,7 +214,7 @@ class APIHelperTests(TestCase):
                    'age': 34,
                    'active': True
                    }
-        a2 = models.Author.objects.create(**a2_data)
+        models.Author.objects.create(**a2_data)
         a3_data = {'created_by': 'cat',
                    'created_time': timezone.now(),
                    'identifier': 'JS3',
@@ -281,7 +276,7 @@ class ItemListUnitTests(TestCase):
                    'age': 34,
                    'active': True
                    }
-        a2 = models.Author.objects.create(**a2_data)
+        models.Author.objects.create(**a2_data)
         a3_data = {'created_by': 'cat',
                    'created_time': timezone.now(),
                    'identifier': 'AS3',
