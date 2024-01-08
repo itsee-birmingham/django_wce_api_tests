@@ -17,10 +17,6 @@ class Author (BaseModel):
     date_joined = models.DateField('Date Joined', null=True)
     active = models.BooleanField('Active', null=True)
 
-    def get_serialization_fields():
-        fields = '__all__'
-        return fields
-
     def get_fields():
         data = {}
         fields = list(Author._meta.get_fields(include_hidden=True))
@@ -42,10 +38,6 @@ class Work (BaseModel):
     title = models.TextField('Title', blank=True)
     author = models.ForeignKey('Author', models.PROTECT, related_name='works')
 
-    def get_serialization_fields():
-        fields = '__all__'
-        return fields
-
     def get_fields():
         data = {}
         fields = list(Work._meta.get_fields(include_hidden=True))
@@ -64,10 +56,6 @@ class Review (BaseModel):
     score = models.IntegerField('Score', null=True, blank=True)
     work = models.ForeignKey('Work', models.PROTECT, related_name='reviews')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, related_name='reviewers')
-
-    def get_serialization_fields():
-        fields = '__all__'
-        return fields
 
     def get_fields():
         data = {}
@@ -88,10 +76,6 @@ class Decision (BaseModel):
     summary_notes = models.TextField('Notes', null=True, blank=True)
     public = models.BooleanField(null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, related_name='decider')
-
-    def get_serialization_fields():
-        fields = '__all__'
-        return fields
 
     def get_fields():
         data = {}
@@ -141,10 +125,6 @@ class PublicationPlan (BaseModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, null=True, related_name='plan_creator')
     editors = models.ManyToManyField('Editor', blank=True)
 
-    def get_serialization_fields():
-        fields = '__all__'
-        return fields
-
     def get_fields():
         data = {}
         fields = list(PublicationPlan._meta.get_fields(include_hidden=True))
@@ -161,10 +141,6 @@ class Editor (BaseModel):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, null=True)
     active = models.BooleanField(null=True)
-
-    def get_serialization_fields():
-        fields = '__all__'
-        return fields
 
     def get_fields():
         data = {}
@@ -183,10 +159,6 @@ class Edition (BaseModel):
     year = models.IntegerField('Year', null=True)
     place = models.TextField('Place', blank=True)
     volume = models.TextField('Volume', blank=True)
-
-    def get_serialization_fields():
-        fields = '__all__'
-        return fields
 
     def get_fields():
         data = {}
