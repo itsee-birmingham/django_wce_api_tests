@@ -1,0 +1,6 @@
+flake8:
+  image: pipelinecomponents/flake8:latest
+  tags:
+    - bear-gitlab-runners
+  script:
+    - flake8 -v .
