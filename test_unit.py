@@ -7,6 +7,7 @@ from rest_framework.request import Request
 from django.db.models import Q
 from api import views
 from api_tests import models, serializers
+from unittest.mock import patch
 
 User = get_user_model()
 
@@ -296,6 +297,46 @@ class ItemListUnitTests(TestCase):
 
         position = item_list_view.get_offset_required(queryset, 99)
         self.assertEqual(position, 0)
+
+    @patch('django.apps.apps.get_model')
+    @patch('api.views.get_field_filters')
+    def test_get_queryset(self, mocked__get_field_filters, mocked__get_model):
+        q1 = Q(('name__contains', 'o'))
+        q2 = Q(('name__contains', 'm'))
+        mocked__get_field_filters.side_effect = [[q1, q2], [Q()]]
+        mocked__get_model.return_value = models.Author
+        rf = RequestFactory()
+        request = rf.get('/api/api_tests/author?name=*o*')
+        a1_data = {'created_by': 'cat',
+                   'created_time': timezone.now(),
+                   'identifier': 'JS1',
+                   'name': 'John Smith',
+                   'age': 28,
+                   'active': True
+                   }
+        a1 = models.Author.objects.create(**a1_data)
+        a2_data = {'created_by': 'cat',
+                   'created_time': timezone.now(),
+                   'identifier': 'JS2',
+                   'name': 'Jane Smart',
+                   'age': 34,
+                   'active': True
+                   }
+        models.Author.objects.create(**a2_data)
+        a3_data = {'created_by': 'cat',
+                   'created_time': timezone.now(),
+                   'identifier': 'AS3',
+                   'name': 'Anna Stopes',
+                   'age': 57,
+                   'active': True
+                   }
+        models.Author.objects.create(**a3_data)
+        item_list_view = views.ItemList()
+        item_list_view.kwargs = {'app': 'api_tests', 'model': 'Author'}
+        item_list_view.request = request
+        hits = item_list_view.get_queryset()
+        self.assertEqual(len(hits), 1)
+        self.assertEqual(hits[0].id, a1.id)
 
 
 class ItemDetailUnitTests(TestCase):
