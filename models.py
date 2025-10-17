@@ -3,8 +3,7 @@ from django.conf import settings
 from api.models import BaseModel
 
 
-class Author (BaseModel):
-
+class Author(BaseModel):
     AVAILABILITY = 'public'
 
     REQUIRED_FIELDS = ['identifier', 'name']
@@ -28,8 +27,7 @@ class Author (BaseModel):
         ordering = ['identifier']
 
 
-class Work (BaseModel):
-
+class Work(BaseModel):
     AVAILABILITY = 'public'
 
     SERIALIZER = 'WorkSerializer'
@@ -46,8 +44,7 @@ class Work (BaseModel):
         return data
 
 
-class Review (BaseModel):
-
+class Review(BaseModel):
     AVAILABILITY = 'private'
 
     SERIALIZER = 'ReviewSerializer'
@@ -65,8 +62,7 @@ class Review (BaseModel):
         return data
 
 
-class Decision (BaseModel):
-
+class Decision(BaseModel):
     AVAILABILITY = 'public_or_user'
 
     SERIALIZER = 'DecisionSerializer'
@@ -85,8 +81,7 @@ class Decision (BaseModel):
         return data
 
 
-class Project (BaseModel):
-
+class Project(BaseModel):
     AVAILABILITY = 'public'
 
     managing_editor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, related_name='manager')
@@ -112,8 +107,7 @@ class Project (BaseModel):
         return data
 
 
-class PublicationPlan (BaseModel):
-
+class PublicationPlan(BaseModel):
     AVAILABILITY = 'project'
 
     SERIALIZER = 'PublicationPlanSerializer'
@@ -133,8 +127,7 @@ class PublicationPlan (BaseModel):
         return data
 
 
-class Editor (BaseModel):
-
+class Editor(BaseModel):
     AVAILABILITY = 'logged_in'
 
     SERIALIZER = 'EditorSerializer'
@@ -150,8 +143,7 @@ class Editor (BaseModel):
         return data
 
 
-class Edition (BaseModel):
-
+class Edition(BaseModel):
     SERIALIZER = 'EditionSerializer'
 
     identifier = models.TextField('Identifier', blank=True)

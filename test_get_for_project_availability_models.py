@@ -9,7 +9,6 @@ User = get_user_model()
 
 
 class MyAPITestCase(TestCase):
-
     def add_user(self, credentials):
         user = User.objects.create_user(**credentials)
         user.save()
@@ -24,152 +23,81 @@ class MyAPITestCase(TestCase):
         return user
 
     def add_data(self):
-
         # add users
-        self.u1 = self.add_user({'username': 'User1',
-                                 'email': 'user1@example.com',
-                                 'password': 'secret'})
-        self.u2 = self.add_user({'username': 'User2',
-                                 'email': 'user2@example.com',
-                                 'password': 'secret'})
-        self.u3 = self.add_superuser({'username': 'User3',
-                                      'email': 'user3@example.com',
-                                      'password': 'secret'})
-        self.u4 = self.add_user({'username': 'User4',
-                                 'email': 'user4@example.com',
-                                 'password': 'secret'})
-        self.u5 = self.add_user({'username': 'User5',
-                                 'email': 'user5@example.com',
-                                 'password': 'secret'})
-        e1_data = {'user': self.u1,
-                   'active': True}
+        self.u1 = self.add_user({'username': 'User1', 'email': 'user1@example.com', 'password': 'secret'})
+        self.u2 = self.add_user({'username': 'User2', 'email': 'user2@example.com', 'password': 'secret'})
+        self.u3 = self.add_superuser({'username': 'User3', 'email': 'user3@example.com', 'password': 'secret'})
+        self.u4 = self.add_user({'username': 'User4', 'email': 'user4@example.com', 'password': 'secret'})
+        self.u5 = self.add_user({'username': 'User5', 'email': 'user5@example.com', 'password': 'secret'})
+        e1_data = {'user': self.u1, 'active': True}
         self.e1 = models.Editor.objects.create(**e1_data)
-        e2_data = {'user': self.u2,
-                   'active': True}
+        e2_data = {'user': self.u2, 'active': True}
         self.e2 = models.Editor.objects.create(**e2_data)
-        e3_data = {'user': self.u3,
-                   'active': True}
+        e3_data = {'user': self.u3, 'active': True}
         self.e3 = models.Editor.objects.create(**e3_data)
-        e4_data = {'user': self.u4,
-                   'active': True}
+        e4_data = {'user': self.u4, 'active': True}
         self.e4 = models.Editor.objects.create(**e4_data)
 
-        a1_data = {'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'active': True
-                   }
+        a1_data = {'identifier': 'JS1', 'name': 'John Smith', 'age': 28, 'active': True}
         self.a1 = models.Author.objects.create(**a1_data)
-        a2_data = {'identifier': 'JS2',
-                   'name': 'Jane Smart',
-                   'age': 34,
-                   'active': True
-                   }
+        a2_data = {'identifier': 'JS2', 'name': 'Jane Smart', 'age': 34, 'active': True}
         self.a2 = models.Author.objects.create(**a2_data)
 
-        w1_data = {'identifier': 'W1',
-                   'title': 'My First Book',
-                   'author': self.a1
-                   }
+        w1_data = {'identifier': 'W1', 'title': 'My First Book', 'author': self.a1}
         self.w1 = models.Work.objects.create(**w1_data)
 
-        w2_data = {'identifier': 'W2',
-                   'title': 'My Second Book',
-                   'author': self.a1
-                   }
+        w2_data = {'identifier': 'W2', 'title': 'My Second Book', 'author': self.a1}
         self.w2 = models.Work.objects.create(**w2_data)
 
-        w3_data = {'identifier': 'W3',
-                   'title': 'My Best Book',
-                   'author': self.a2
-                   }
+        w3_data = {'identifier': 'W3', 'title': 'My Best Book', 'author': self.a2}
         self.w3 = models.Work.objects.create(**w3_data)
 
-        w4_data = {'identifier': 'W4',
-                   'title': 'Another Great Book',
-                   'author': self.a2
-                   }
+        w4_data = {'identifier': 'W4', 'title': 'Another Great Book', 'author': self.a2}
         self.w4 = models.Work.objects.create(**w4_data)
 
-        d1_data = {'work': self.w1,
-                   'accept': True,
-                   'summary_notes': 'accepted for publication',
-                   'public': True,
-                   'user': self.u4}
+        d1_data = {
+            'work': self.w1,
+            'accept': True,
+            'summary_notes': 'accepted for publication',
+            'public': True,
+            'user': self.u4,
+        }
         self.d1 = models.Decision.objects.create(**d1_data)
 
-        d2_data = {'work': self.w2,
-                   'summary_notes': 'needs further cosideration',
-                   'public': False,
-                   'user': self.u4}
+        d2_data = {'work': self.w2, 'summary_notes': 'needs further cosideration', 'public': False, 'user': self.u4}
         self.d2 = models.Decision.objects.create(**d2_data)
 
-        d3_data = {'work': self.w3,
-                   'accept': True,
-                   'summary_notes': 'third review requested',
-                   'user': self.u2}
+        d3_data = {'work': self.w3, 'accept': True, 'summary_notes': 'third review requested', 'user': self.u2}
         self.d3 = models.Decision.objects.create(**d3_data)
 
-        d4_data = {'work': self.w4,
-                   'accept': False,
-                   'summary_notes': 'Not ready yet',
-                   'public': True,
-                   'user': self.u2}
+        d4_data = {'work': self.w4, 'accept': False, 'summary_notes': 'Not ready yet', 'public': True, 'user': self.u2}
         self.d4 = models.Decision.objects.create(**d4_data)
 
-        r1_data = {'notes': 'Good',
-                   'score': 7,
-                   'work': self.w1,
-                   'user': self.u1
-                   }
+        r1_data = {'notes': 'Good', 'score': 7, 'work': self.w1, 'user': self.u1}
         self.r1 = models.Review.objects.create(**r1_data)
 
-        r2_data = {'notes': 'Great',
-                   'score': 10,
-                   'work': self.w1,
-                   'user': self.u2
-                   }
+        r2_data = {'notes': 'Great', 'score': 10, 'work': self.w1, 'user': self.u2}
         self.r2 = models.Review.objects.create(**r2_data)
 
-        r3_data = {'notes': 'Good',
-                   'score': 6,
-                   'work': self.w2,
-                   'user': self.u1
-                   }
+        r3_data = {'notes': 'Good', 'score': 6, 'work': self.w2, 'user': self.u1}
         self.r3 = models.Review.objects.create(**r3_data)
 
-        r4_data = {'notes': 'not great',
-                   'score': 3,
-                   'work': self.w2,
-                   'user': self.u3
-                   }
+        r4_data = {'notes': 'not great', 'score': 3, 'work': self.w2, 'user': self.u3}
         self.r4 = models.Review.objects.create(**r4_data)
 
-        r5_data = {'notes': 'okay',
-                   'score': 5,
-                   'work': self.w2,
-                   'user': self.u4
-                   }
+        r5_data = {'notes': 'okay', 'score': 5, 'work': self.w2, 'user': self.u4}
         self.r5 = models.Review.objects.create(**r5_data)
 
-        r6_data = {'notes': 'Looking good',
-                   'score': 8,
-                   'work': self.w3,
-                   'user': self.u4
-                   }
+        r6_data = {'notes': 'Looking good', 'score': 8, 'work': self.w3, 'user': self.u4}
         self.r6 = models.Review.objects.create(**r6_data)
 
-        p1_data = {'managing_editor': self.u4,
-                   'status': 'in press',
-                   'genre': 'sci-fi'}
+        p1_data = {'managing_editor': self.u4, 'status': 'in press', 'genre': 'sci-fi'}
         self.p1 = models.Project.objects.create(**p1_data)
         self.p1.work.add(self.w1.id)
         self.p1.editors.add(self.u2.id)
         self.p1.save()
 
-        p2_data = {'managing_editor': self.u2,
-                   'status': 'started',
-                   'genre': 'historical'}
+        p2_data = {'managing_editor': self.u2, 'status': 'started', 'genre': 'historical'}
         self.p2 = models.Project.objects.create(**p2_data)
         self.p2.work.add(self.w3.id)
         self.p2.editors.add(self.u1.id)
@@ -177,25 +105,31 @@ class MyAPITestCase(TestCase):
         self.p2.editors.add(self.u5.id)
         self.p2.save()
 
-        pp1_data = {'project': self.p1,
-                    'current_stage': 'print',
-                    'notes': 'print run due next week',
-                    'public': True,
-                    'user': self.u1}
+        pp1_data = {
+            'project': self.p1,
+            'current_stage': 'print',
+            'notes': 'print run due next week',
+            'public': True,
+            'user': self.u1,
+        }
         self.pp1 = models.PublicationPlan.objects.create(**pp1_data)
 
-        pp2_data = {'project': self.p1,
-                    'current_stage': 'review',
-                    'notes': 'third review due November',
-                    'public': False,
-                    'user': self.u2}
+        pp2_data = {
+            'project': self.p1,
+            'current_stage': 'review',
+            'notes': 'third review due November',
+            'public': False,
+            'user': self.u2,
+        }
         self.pp2 = models.PublicationPlan.objects.create(**pp2_data)
 
-        pp3_data = {'project': self.p2,
-                    'current_stage': 'review',
-                    'notes': 'third review due December',
-                    'public': False,
-                    'user': self.u4}
+        pp3_data = {
+            'project': self.p2,
+            'current_stage': 'review',
+            'notes': 'third review due December',
+            'public': False,
+            'user': self.u4,
+        }
         self.pp3 = models.PublicationPlan.objects.create(**pp3_data)
 
 
@@ -218,8 +152,9 @@ class APIItemListTestsProjectsBadConfiguration(MyAPITestCase):
         response = client.get(self.base_url.format('api_tests', 'author'))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response_json['message'],
-                         'Internal server error - model configuation incompatible with API (code 10003)')
+        self.assertEqual(
+            response_json['message'], 'Internal server error - model configuation incompatible with API (code 10003)'
+        )
 
 
 class APIItemListDetailProjectsBadConfiguration(MyAPITestCase):
@@ -241,8 +176,9 @@ class APIItemListDetailProjectsBadConfiguration(MyAPITestCase):
         response = client.get(self.base_url.format('api_tests', 'author', self.a1.id))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response_json['message'],
-                         'Internal server error - model configuation incompatible with API (code 10003)')
+        self.assertEqual(
+            response_json['message'], 'Internal server error - model configuation incompatible with API (code 10003)'
+        )
 
 
 class APIItemListTestsProjectModels(MyAPITestCase):
@@ -269,8 +205,7 @@ class APIItemListTestsProjectModels(MyAPITestCase):
         client = APIClient()
         login = client.login(username='user4@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('%s?project__id=%s' % (self.base_url.format('api_tests', 'publicationplan'),
-                                                     self.p1.id))
+        response = client.get('%s?project__id=%s' % (self.base_url.format('api_tests', 'publicationplan'), self.p1.id))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         # user 4 is only in p1 and p1 has 2 publication plans so show both (only one is owned by u4)
@@ -281,8 +216,7 @@ class APIItemListTestsProjectModels(MyAPITestCase):
         client = APIClient()
         login = client.login(username='user2@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('%s?project__id=%s' % (self.base_url.format('api_tests', 'publicationplan'),
-                                                     self.p1.id))
+        response = client.get('%s?project__id=%s' % (self.base_url.format('api_tests', 'publicationplan'), self.p1.id))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         # user 2 is in 2 projects but is asking for p1 and p1 has 2 publication plans so show both
@@ -293,8 +227,7 @@ class APIItemListTestsProjectModels(MyAPITestCase):
         client = APIClient()
         login = client.login(username='user5@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('%s?project__id=%s' % (self.base_url.format('api_tests', 'publicationplan'),
-                                                     self.p1.id))
+        response = client.get('%s?project__id=%s' % (self.base_url.format('api_tests', 'publicationplan'), self.p1.id))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         # user5 is not in any projects so no data returned
@@ -305,8 +238,7 @@ class APIItemListTestsProjectModels(MyAPITestCase):
         client = APIClient()
         login = client.login(username='user3@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('%s?project__id=%s' % (self.base_url.format('api_tests', 'publicationplan'),
-                                                     self.p1.id))
+        response = client.get('%s?project__id=%s' % (self.base_url.format('api_tests', 'publicationplan'), self.p1.id))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         # user5 is not in requested project but is superuser so gets decisions for this project only
@@ -332,8 +264,9 @@ class APIItemListTestsProjectOrUserBadConfiguration(MyAPITestCase):
         response = client.get(self.base_url.format('api_tests', 'author'))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response_json['message'],
-                         'Internal server error - model configuation incompatible with API (code 10003)')
+        self.assertEqual(
+            response_json['message'], 'Internal server error - model configuation incompatible with API (code 10003)'
+        )
 
 
 class APIItemListTestsProjectOrUserModels(MyAPITestCase):
@@ -369,8 +302,9 @@ class APIItemListTestsProjectOrUserModels(MyAPITestCase):
         client = APIClient()
         login = client.login(username='user2@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'),
-                                                         self.p1.id))
+        response = client.get(
+            '{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'), self.p1.id)
+        )
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['count'], 2)
@@ -379,8 +313,9 @@ class APIItemListTestsProjectOrUserModels(MyAPITestCase):
         # this should returned the owned item in the requested project
         login = client.login(username='user4@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'),
-                                                         self.p2.id))
+        response = client.get(
+            '{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'), self.p2.id)
+        )
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['count'], 1)
@@ -388,8 +323,9 @@ class APIItemListTestsProjectOrUserModels(MyAPITestCase):
         # only one item returned if 2 items in project and user is not in project but owns one item
         login = client.login(username='user1@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'),
-                                                         self.p1.id))
+        response = client.get(
+            '{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'), self.p1.id)
+        )
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['count'], 1)
@@ -398,8 +334,9 @@ class APIItemListTestsProjectOrUserModels(MyAPITestCase):
         client = APIClient()
         login = client.login(username='user5@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'),
-                                                         self.p1.id))
+        response = client.get(
+            '{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'), self.p1.id)
+        )
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['count'], 0)
@@ -408,8 +345,9 @@ class APIItemListTestsProjectOrUserModels(MyAPITestCase):
         client = APIClient()
         login = client.login(username='user3@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'),
-                                                         self.p1.id))
+        response = client.get(
+            '{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'), self.p1.id)
+        )
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['count'], 2)
@@ -432,8 +370,9 @@ class APIItemListTestsPublicOrProjectBadConfigurationPublicMissing(MyAPITestCase
         response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'author'), self.p1.id))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response_json['message'],
-                         'Internal server error - model configuation incompatible with API (code 10002)')
+        self.assertEqual(
+            response_json['message'], 'Internal server error - model configuation incompatible with API (code 10002)'
+        )
 
 
 class APIItemListTestsPublicOrProjectBadConfigurationProjectMissing(MyAPITestCase):
@@ -453,8 +392,9 @@ class APIItemListTestsPublicOrProjectBadConfigurationProjectMissing(MyAPITestCas
         response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'decision'), self.d1.id))
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response_json['message'],
-                         'Internal server error - model configuation incompatible with API (code 10002)')
+        self.assertEqual(
+            response_json['message'], 'Internal server error - model configuation incompatible with API (code 10002)'
+        )
 
 
 class APIItemListTestsPublicOrProjectModels(MyAPITestCase):
@@ -501,8 +441,9 @@ class APIItemListTestsPublicOrProjectModels(MyAPITestCase):
         # user in projects
         login = client.login(username='user5@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'),
-                                                         self.p2.id))
+        response = client.get(
+            '{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'), self.p2.id)
+        )
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['count'], 1)
@@ -510,8 +451,9 @@ class APIItemListTestsPublicOrProjectModels(MyAPITestCase):
         # (this should never happen in reality and suggests an incorrect availability but it tests code)
         login = client.login(username='user4@example.com', password='secret')
         self.assertEqual(login, True)
-        response = client.get('{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'),
-                                                         self.p1.id))
+        response = client.get(
+            '{}?project__id={}'.format(self.base_url.format('api_tests', 'publicationplan'), self.p1.id)
+        )
         response_json = json.loads(response.content.decode('utf8'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response_json['count'], 2)

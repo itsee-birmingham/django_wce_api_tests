@@ -13,7 +13,6 @@ User = get_user_model()
 
 
 class APIHelperTests(TestCase):
-
     def add_data_manager_user(self, credentials):
         user = User.objects.create_user(**credentials)
         user.save()
@@ -21,21 +20,23 @@ class APIHelperTests(TestCase):
 
     def test_get_count(self):
         # with a query set
-        a1_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'active': True
-                   }
+        a1_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'active': True,
+        }
         models.Author.objects.create(**a1_data)
-        a2_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS2',
-                   'name': 'Jane Smart',
-                   'age': 34,
-                   'active': True
-                   }
+        a2_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS2',
+            'name': 'Jane Smart',
+            'age': 34,
+            'active': True,
+        }
         models.Author.objects.create(**a2_data)
 
         query_set = models.Author.objects.all()
@@ -48,7 +49,6 @@ class APIHelperTests(TestCase):
         self.assertEqual(count, 2)
 
     def test_get_date_field(self):
-
         expected_date = datetime.datetime.strptime('1900', '%Y').date()
         date = views.get_date_field('>', '>1900')
         self.assertEqual(date, expected_date)
@@ -183,13 +183,14 @@ class APIHelperTests(TestCase):
         self.assertEqual(str(expected_query), str(query))
 
     def test_getEtag(self):
-        a1_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'active': True
-                   }
+        a1_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'active': True,
+        }
         a1 = models.Author.objects.create(**a1_data)
         rf = RequestFactory()
         request = Request(rf.get('/api/api_tests/author/{}'.format(a1.id)))
@@ -199,30 +200,32 @@ class APIHelperTests(TestCase):
         self.assertEqual(etag, '1')
 
     def test_SelectPagePaginator(self):
-
-        a1_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'active': True
-                   }
+        a1_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'active': True,
+        }
         models.Author.objects.create(**a1_data)
-        a2_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS2',
-                   'name': 'Jane Smart',
-                   'age': 34,
-                   'active': True
-                   }
+        a2_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS2',
+            'name': 'Jane Smart',
+            'age': 34,
+            'active': True,
+        }
         models.Author.objects.create(**a2_data)
-        a3_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS3',
-                   'name': 'Jenny Stopes',
-                   'age': 57,
-                   'active': True
-                   }
+        a3_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS3',
+            'name': 'Jenny Stopes',
+            'age': 57,
+            'active': True,
+        }
         a3 = models.Author.objects.create(**a3_data)
 
         rf = RequestFactory()
@@ -248,9 +251,7 @@ class APIHelperTests(TestCase):
 # these are tests for specific functions in the model class I want to check
 # rather than testing the whole view at once
 class ItemListUnitTests(TestCase):
-
     def test_get_serializer_class(self):
-
         item_list_view = views.ItemList()
         item_list_view.kwargs = {'app': 'api_tests', 'model': 'author'}
         serializer_class = item_list_view.get_serializer_class()
@@ -262,29 +263,32 @@ class ItemListUnitTests(TestCase):
         self.assertEqual(serializer_class, serializers.WorkSerializer)
 
     def test_get_offset_required(self):
-        a1_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'active': True
-                   }
+        a1_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'active': True,
+        }
         a1 = models.Author.objects.create(**a1_data)
-        a2_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS2',
-                   'name': 'Jane Smart',
-                   'age': 34,
-                   'active': True
-                   }
+        a2_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS2',
+            'name': 'Jane Smart',
+            'age': 34,
+            'active': True,
+        }
         models.Author.objects.create(**a2_data)
-        a3_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'AS3',
-                   'name': 'Anna Stopes',
-                   'age': 57,
-                   'active': True
-                   }
+        a3_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'AS3',
+            'name': 'Anna Stopes',
+            'age': 57,
+            'active': True,
+        }
         a3 = models.Author.objects.create(**a3_data)
         item_list_view = views.ItemList()
 
@@ -307,29 +311,32 @@ class ItemListUnitTests(TestCase):
         mocked__get_model.return_value = models.Author
         rf = RequestFactory()
         request = rf.get('/api/api_tests/author?name=*o*')
-        a1_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'active': True
-                   }
+        a1_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'active': True,
+        }
         a1 = models.Author.objects.create(**a1_data)
-        a2_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS2',
-                   'name': 'Jane Smart',
-                   'age': 34,
-                   'active': True
-                   }
+        a2_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS2',
+            'name': 'Jane Smart',
+            'age': 34,
+            'active': True,
+        }
         models.Author.objects.create(**a2_data)
-        a3_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'AS3',
-                   'name': 'Anna Stopes',
-                   'age': 57,
-                   'active': True
-                   }
+        a3_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'AS3',
+            'name': 'Anna Stopes',
+            'age': 57,
+            'active': True,
+        }
         models.Author.objects.create(**a3_data)
         item_list_view = views.ItemList()
         item_list_view.kwargs = {'app': 'api_tests', 'model': 'Author'}
@@ -340,9 +347,7 @@ class ItemListUnitTests(TestCase):
 
 
 class ItemDetailUnitTests(TestCase):
-
     def test_get_serializer_class(self):
-
         item_detail_view = views.ItemDetail()
         item_detail_view.kwargs = {'app': 'api_tests', 'model': 'author'}
         serializer_class = item_detail_view.get_serializer_class()

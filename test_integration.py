@@ -69,9 +69,9 @@ class APIPostTests(APITestCase):
         group.save()
 
     def test_getUser(self):
-        user = self.add_data_editor_user({'username': 'testuser@example.com',
-                                          'email': 'testuser@example.com',
-                                          'password': 'xyz'})
+        user = self.add_data_editor_user(
+            {'username': 'testuser@example.com', 'email': 'testuser@example.com', 'password': 'xyz'}
+        )
         if django_settings.USER_IDENTIFIER_FIELD:
             setattr(user, django_settings.USER_IDENTIFIER_FIELD, 'Test User')
             user.save()
@@ -90,19 +90,15 @@ class APIPostTests(APITestCase):
     def test_POSTAuthor(self):
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 0)
-        a1_data = {'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'active': True
-                   }
+        a1_data = {'identifier': 'JS1', 'name': 'John Smith', 'age': 28, 'active': True}
         response = self.client.post('%screate' % self.base_url.format('api_tests', 'author'), a1_data)
         # we should not be able to create unless we are logged in - 403 Authentication credentials were not provided.
         self.assertEqual(response.status_code, 403)
 
         # now login
-        user = self.add_data_editor_user({'username': 'testuser@example.com',
-                                          'email': 'testuser@example.com',
-                                          'password': 'xyz'})
+        user = self.add_data_editor_user(
+            {'username': 'testuser@example.com', 'email': 'testuser@example.com', 'password': 'xyz'}
+        )
         if django_settings.USER_IDENTIFIER_FIELD:
             setattr(user, django_settings.USER_IDENTIFIER_FIELD, 'Test User')
             user.save()
@@ -111,8 +107,11 @@ class APIPostTests(APITestCase):
         login = client.login(username='testuser@example.com', password='xyz')
         self.assertEqual(login, True)
 
-        response = client.post('%screate' % self.base_url.format('api_tests', 'author'),
-                               json.dumps(a1_data), content_type='application/json')
+        response = client.post(
+            '%screate' % self.base_url.format('api_tests', 'author'),
+            json.dumps(a1_data),
+            content_type='application/json',
+        )
         self.assertEqual(response.status_code, 201)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 1)
@@ -124,30 +123,32 @@ class APIPostTests(APITestCase):
         client.logout()
 
         # now try again but as a different user with no full_name.
-        user2 = self.add_data_editor_user({'username': 'testuser2@example.com',
-                                           'email': 'testuser2@example.com',
-                                           'password': 'xyz'})
+        user2 = self.add_data_editor_user(
+            {'username': 'testuser2@example.com', 'email': 'testuser2@example.com', 'password': 'xyz'}
+        )
         self.assertTrue(user2.has_perm('api_tests.add_author'))
         client2 = APIClient()
         login = client2.login(username='testuser2@example.com', password='xyz')
         self.assertEqual(login, True)
 
         # use the same data as added by someone else
-        response = client2.post('%screate' % self.base_url.format('api_tests', 'author'),
-                                json.dumps(a1_data), content_type='application/json')
+        response = client2.post(
+            '%screate' % self.base_url.format('api_tests', 'author'),
+            json.dumps(a1_data),
+            content_type='application/json',
+        )
         # it does not work because identifier must be unique
         self.assertEqual(response.status_code, 400)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 1)
 
         # now try with different data
-        a2_data = {'identifier': 'JS2',
-                   'name': 'Jane Smart',
-                   'age': 34,
-                   'active': True
-                   }
-        response = client2.post('%screate' % self.base_url.format('api_tests', 'author'),
-                                json.dumps(a2_data), content_type='application/json')
+        a2_data = {'identifier': 'JS2', 'name': 'Jane Smart', 'age': 34, 'active': True}
+        response = client2.post(
+            '%screate' % self.base_url.format('api_tests', 'author'),
+            json.dumps(a2_data),
+            content_type='application/json',
+        )
         self.assertEqual(response.status_code, 201)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 2)
@@ -158,30 +159,37 @@ class APIPostTests(APITestCase):
     # @skip('')
     def test_PATCHAuthorPartial(self):
         # make an author to modify
-        a1_data = {'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
-                   'active': True
-                   }
+        a1_data = {
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
+            'active': True,
+        }
         a1 = models.Author.objects.create(**a1_data)
 
-        response = self.client.patch('%supdate/%s' % (self.base_url.format('api_tests', 'author'), a1.id),
-                                     json.dumps({'name': 'My new name'}), content_type='application/json')
+        response = self.client.patch(
+            '%supdate/%s' % (self.base_url.format('api_tests', 'author'), a1.id),
+            json.dumps({'name': 'My new name'}),
+            content_type='application/json',
+        )
         # we should not be able to modify unless we are logged in - 403 Authentication credentials were not provided.
         self.assertEqual(response.status_code, 403)
 
         # now login
-        user = self.add_data_editor_user({'username': 'testuser@example.com',
-                                          'email': 'testuser@example.com',
-                                          'password': 'xyz'})
+        user = self.add_data_editor_user(
+            {'username': 'testuser@example.com', 'email': 'testuser@example.com', 'password': 'xyz'}
+        )
         self.assertTrue(user.has_perm('api_tests.change_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
         self.assertEqual(login, True)
 
-        response = client.patch('%supdate/%s' % (self.base_url.format('api_tests', 'author'), a1.id),
-                                json.dumps({'name': 'My new name'}), content_type='application/json')
+        response = client.patch(
+            '%supdate/%s' % (self.base_url.format('api_tests', 'author'), a1.id),
+            json.dumps({'name': 'My new name'}),
+            content_type='application/json',
+        )
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
 
@@ -199,27 +207,29 @@ class APIPostTests(APITestCase):
 
     def test_PUTAuthorNoChange(self):
         # make an author to modify
-        a1_data = {'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
-                   'active': True
-                   }
+        a1_data = {
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
+            'active': True,
+        }
         a1 = models.Author.objects.create(**a1_data)
         # we need to get the stored version because otherwise the creation time strings are different!
         response = self.client.get(self.base_url.format('api_tests', 'author', a1.id))
         response_json = json.loads(response.content.decode('utf8'))
 
-        user = self.add_data_editor_user({'username': 'testuser',
-                                          'email': 'testuser@example.com',
-                                          'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser', 'email': 'testuser@example.com', 'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.change_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
         self.assertEqual(login, True)
         a1_data['id'] = a1.id
-        response = client.put('%supdate/%s' % (self.base_url.format('api_tests', 'author'), a1.id),
-                              json.dumps(response_json['results'][0]), content_type='application/json')
+        response = client.put(
+            '%supdate/%s' % (self.base_url.format('api_tests', 'author'), a1.id),
+            json.dumps(response_json['results'][0]),
+            content_type='application/json',
+        )
 
         self.assertEqual(response.status_code, 200)
         authors = models.Author.objects.all()
@@ -230,28 +240,30 @@ class APIPostTests(APITestCase):
     # @skip('')
     def test_PUTAuthorChange(self):
         # make an author to modify
-        a1_data = {'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
-                   'active': True
-                   }
+        a1_data = {
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
+            'active': True,
+        }
         a1 = models.Author.objects.create(**a1_data)
         # we need to get the stored version because otherwise the creation time strings are different!
         response = self.client.get(self.base_url.format('api_tests', 'author', a1.id))
         response_json = json.loads(response.content.decode('utf8'))
         response_json['results'][0]['name'] = 'My new name'
 
-        user = self.add_data_editor_user({'username': 'testuser',
-                                          'email': 'testuser@example.com',
-                                          'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser', 'email': 'testuser@example.com', 'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.add_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
         self.assertEqual(login, True)
         a1_data['id'] = a1.id
-        response = client.put('%supdate/%s' % (self.base_url.format('api_tests', 'author'), a1.id),
-                              json.dumps(response_json['results'][0]), content_type='application/json')
+        response = client.put(
+            '%supdate/%s' % (self.base_url.format('api_tests', 'author'), a1.id),
+            json.dumps(response_json['results'][0]),
+            content_type='application/json',
+        )
 
         self.assertEqual(response.status_code, 200)
         authors = models.Author.objects.all()
@@ -261,20 +273,22 @@ class APIPostTests(APITestCase):
         self.assertNotEqual(authors[0].last_modified_time, None)
 
     def test_DELETEAuthor(self):
-        a1_data = {'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
-                   'active': True
-                   }
+        a1_data = {
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
+            'active': True,
+        }
         a1 = models.Author.objects.create(**a1_data)
-        a2_data = {'created_by': 'cat',
-                   'created_time': timezone.now(),
-                   'identifier': 'JS2',
-                   'name': 'Jane Smart',
-                   'age': 34,
-                   'active': True
-                   }
+        a2_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS2',
+            'name': 'Jane Smart',
+            'age': 34,
+            'active': True,
+        }
         a2 = models.Author.objects.create(**a2_data)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 2)
@@ -283,9 +297,7 @@ class APIPostTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 2)
-        user = self.add_data_editor_user({'username': 'testuser',
-                                          'email': 'testuser@example.com',
-                                          'password': 'xyz'})
+        user = self.add_data_editor_user({'username': 'testuser', 'email': 'testuser@example.com', 'password': 'xyz'})
         self.assertFalse(user.has_perm('api_tests.delete_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -294,9 +306,9 @@ class APIPostTests(APITestCase):
         self.assertEqual(response.status_code, 403)
         authors = models.Author.objects.all()
         self.assertTrue(len(authors) == 2)
-        user = self.add_data_manager_user({'username': 'testuser2',
-                                           'email': 'testuser2@example.com',
-                                           'password': 'xyz'})
+        user = self.add_data_manager_user(
+            {'username': 'testuser2', 'email': 'testuser2@example.com', 'password': 'xyz'}
+        )
         self.assertTrue(user.has_perm('api_tests.delete_author'))
         client2 = APIClient()
         login = client2.login(username='testuser2@example.com', password='xyz')
@@ -308,23 +320,19 @@ class APIPostTests(APITestCase):
         self.assertEqual(authors[0].identifier, a2.identifier)
 
     def test_DELETEWithDeps(self):
-
-        a1_data = {'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
-                   'active': True
-                   }
+        a1_data = {
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'date_joined': datetime.datetime.strptime('2010 4 6', '%Y %m %d').date(),
+            'active': True,
+        }
         a1 = models.Author.objects.create(**a1_data)
 
-        w1_data = {'identifier': 'W1',
-                   'title': 'My Title',
-                   'author': a1}
+        w1_data = {'identifier': 'W1', 'title': 'My Title', 'author': a1}
         models.Work.objects.create(**w1_data)
 
-        user = self.add_data_manager_user({'username': 'testuser',
-                                           'email': 'testuser@example.com',
-                                           'password': 'xyz'})
+        user = self.add_data_manager_user({'username': 'testuser', 'email': 'testuser@example.com', 'password': 'xyz'})
         self.assertTrue(user.has_perm('api_tests.delete_author'))
         client = APIClient()
         login = client.login(username='testuser@example.com', password='xyz')
@@ -335,50 +343,28 @@ class APIPostTests(APITestCase):
         self.assertTrue(len(authors) == 1)
 
     def test_M2MDelete(self):
-
         # add users
-        self.u1 = self.add_data_editor_user({'username': 'User1',
-                                             'email': 'user1@example.com',
-                                             'password': 'secret'})
-        self.u2 = self.add_data_editor_user({'username': 'User2',
-                                             'email': 'user2@example.com',
-                                             'password': 'secret'})
-        self.u3 = self.add_data_editor_user({'username': 'User3',
-                                             'email': 'user3@example.com',
-                                             'password': 'secret'})
-        self.u4 = self.add_data_manager_user({'username': 'User4',
-                                              'email': 'user4@example.com',
-                                              'password': 'secret'})
+        self.u1 = self.add_data_editor_user({'username': 'User1', 'email': 'user1@example.com', 'password': 'secret'})
+        self.u2 = self.add_data_editor_user({'username': 'User2', 'email': 'user2@example.com', 'password': 'secret'})
+        self.u3 = self.add_data_editor_user({'username': 'User3', 'email': 'user3@example.com', 'password': 'secret'})
+        self.u4 = self.add_data_manager_user({'username': 'User4', 'email': 'user4@example.com', 'password': 'secret'})
 
-        e1_data = {'user': self.u1,
-                   'active': True}
+        e1_data = {'user': self.u1, 'active': True}
         self.e1 = models.Editor.objects.create(**e1_data)
-        e2_data = {'user': self.u2,
-                   'active': True}
+        e2_data = {'user': self.u2, 'active': True}
         self.e2 = models.Editor.objects.create(**e2_data)
-        e3_data = {'user': self.u3,
-                   'active': True}
+        e3_data = {'user': self.u3, 'active': True}
         self.e3 = models.Editor.objects.create(**e3_data)
-        e4_data = {'user': self.u4,
-                   'active': True}
+        e4_data = {'user': self.u4, 'active': True}
         self.e4 = models.Editor.objects.create(**e4_data)
 
-        a1_data = {'identifier': 'JS1',
-                   'name': 'John Smith',
-                   'age': 28,
-                   'active': True
-                   }
+        a1_data = {'identifier': 'JS1', 'name': 'John Smith', 'age': 28, 'active': True}
         self.a1 = models.Author.objects.create(**a1_data)
 
-        w1_data = {'identifier': 'W1',
-                   'title': 'My First Book',
-                   'author': self.a1
-                   }
+        w1_data = {'identifier': 'W1', 'title': 'My First Book', 'author': self.a1}
         self.w1 = models.Work.objects.create(**w1_data)
 
-        p1_data = {'managing_editor': self.u4,
-                   'status': 'in press',
-                   'genre': 'sci-fi'}
+        p1_data = {'managing_editor': self.u4, 'status': 'in press', 'genre': 'sci-fi'}
         self.p1 = models.Project.objects.create(**p1_data)
         self.p1.work.add(self.w1.id)
         self.p1.editors.add(self.u2.id)
@@ -396,9 +382,11 @@ class APIPostTests(APITestCase):
         self.assertTrue(len(projects) == 1)
         self.assertTrue(len(projects[0].editors.all()) == 2)
         client = APIClient()
-        url_string = '%s%s/editors/delete/editor/%s' % (self.base_url.format('api_tests', 'publicationplan'),
-                                                        self.pp1.id,
-                                                        self.e2.id)
+        url_string = '%s%s/editors/delete/editor/%s' % (
+            self.base_url.format('api_tests', 'publicationplan'),
+            self.pp1.id,
+            self.e2.id,
+        )
 
         response = client.patch(url_string)
         self.assertEqual(response.status_code, 403)
