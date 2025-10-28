@@ -265,24 +265,20 @@ class ItemListUnitTests(TestCase):
         item_list_view = views.ItemList()
 
         queryset = models.Author.objects.all().order_by('name')
-        position = item_list_view.get_offset_required(queryset, a1.id)
+        position = item_list_view._get_offset_required(queryset, a1.id)
         self.assertEqual(position, 2)
 
-        position = item_list_view.get_offset_required(queryset, a3.id)
+        position = item_list_view._get_offset_required(queryset, a3.id)
         self.assertEqual(position, 0)
 
-        position = item_list_view.get_offset_required(queryset, 99)
+        position = item_list_view._get_offset_required(queryset, 99)
         self.assertEqual(position, 0)
 
     @patch('django.apps.apps.get_model')
-    @patch('api.search_helpers.get_field_filters')
-    def test_get_queryset(self, mocked__get_field_filters, mocked__get_model):
-        q1 = Q(('name__contains', 'o'))
-        q2 = Q(('name__contains', 'm'))
-        mocked__get_field_filters.side_effect = [[q1, q2], [Q()]]
+    def test_get_queryset_and(self, mocked__get_model):
         mocked__get_model.return_value = models.Author
         rf = RequestFactory()
-        request = rf.get('/api/api_tests/author?name=*o*')
+        request = rf.get('/api/api_tests/author?name=*o*&name=*m*')
         a1_data = {
             'created_by': 'cat',
             'created_time': timezone.now(),
@@ -316,6 +312,44 @@ class ItemListUnitTests(TestCase):
         hits = item_list_view.get_queryset()
         self.assertEqual(len(hits), 1)
         self.assertEqual(hits[0].id, a1.id)
+
+    @patch('django.apps.apps.get_model')
+    def test_get_queryset_or(self, mocked__get_model):
+        mocked__get_model.return_value = models.Author
+        rf = RequestFactory()
+        request = rf.get('/api/api_tests/author?name=*o*,*m*')
+        a1_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'active': True,
+        }
+        models.Author.objects.create(**a1_data)
+        a2_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS2',
+            'name': 'Jane Smart',
+            'age': 34,
+            'active': True,
+        }
+        models.Author.objects.create(**a2_data)
+        a3_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'AS3',
+            'name': 'Anna Stopes',
+            'age': 57,
+            'active': True,
+        }
+        models.Author.objects.create(**a3_data)
+        item_list_view = views.ItemList()
+        item_list_view.kwargs = {'app': 'api_tests', 'model': 'Author'}
+        item_list_view.request = request
+        hits = item_list_view.get_queryset()
+        self.assertEqual(len(hits), 3)
 
 
 class ItemDetailUnitTests(TestCase):
