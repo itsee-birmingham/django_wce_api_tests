@@ -1,25 +1,22 @@
-name: ci-flake8
+name: linting
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
-  build:
-
+  ruff:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: ["3.10"]
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+    - uses: actions/checkout@v4
+    - name: Install Python 3.10
+      uses: actions/setup-python@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: '3.10'
     - name: Install Dependencies
       run: |
-        pip install flake8
-    - name: Run flake8
+        pip install ruff
+    - name: Run ruff
       run: |
-        flake8 -v .
+        ruff check .
+        ruff format --check --diff .

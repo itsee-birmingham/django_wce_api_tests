@@ -1,9 +1,13 @@
-from django.db import models
-from django.conf import settings
+"""These models are made up purely for testing and are loosly bsaed on models that might be needed by publishers."""
+
 from api.models import BaseModel
+from django.conf import settings
+from django.db import models
 
 
 class Author(BaseModel):
+    """The author of a book."""
+
     AVAILABILITY = 'public'
 
     REQUIRED_FIELDS = ['identifier', 'name']
@@ -28,6 +32,8 @@ class Author(BaseModel):
 
 
 class Work(BaseModel):
+    """A book."""
+
     AVAILABILITY = 'public'
 
     SERIALIZER = 'WorkSerializer'
@@ -45,6 +51,8 @@ class Work(BaseModel):
 
 
 class Review(BaseModel):
+    """An reviewers review of a book."""
+
     AVAILABILITY = 'private'
 
     SERIALIZER = 'ReviewSerializer'
@@ -63,6 +71,8 @@ class Review(BaseModel):
 
 
 class Decision(BaseModel):
+    """An editors publication decision about a book."""
+
     AVAILABILITY = 'public_or_user'
 
     SERIALIZER = 'DecisionSerializer'
@@ -82,6 +92,8 @@ class Decision(BaseModel):
 
 
 class Project(BaseModel):
+    """A managing editors project containd the books they are responsible for reviewing and publishing."""
+
     AVAILABILITY = 'public'
 
     managing_editor = models.ForeignKey(settings.AUTH_USER_MODEL, models.PROTECT, related_name='manager')
@@ -108,6 +120,8 @@ class Project(BaseModel):
 
 
 class PublicationPlan(BaseModel):
+    """The publication plan for a book tracking its progress."""
+
     AVAILABILITY = 'project'
 
     SERIALIZER = 'PublicationPlanSerializer'
@@ -128,6 +142,8 @@ class PublicationPlan(BaseModel):
 
 
 class Editor(BaseModel):
+    """An editor of a book."""
+
     AVAILABILITY = 'logged_in'
 
     SERIALIZER = 'EditorSerializer'
@@ -144,6 +160,8 @@ class Editor(BaseModel):
 
 
 class Edition(BaseModel):
+    """An edition of a book."""
+
     SERIALIZER = 'EditionSerializer'
 
     identifier = models.TextField('Identifier', blank=True)

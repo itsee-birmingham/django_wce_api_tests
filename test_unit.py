@@ -1,6 +1,7 @@
 import datetime
 from unittest.mock import patch
 
+from api import search_helpers, views
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.test import TestCase
@@ -8,7 +9,6 @@ from django.test.client import RequestFactory
 from django.utils import timezone
 from rest_framework.request import Request
 
-from api import search_helpers, views
 from api_tests import models, serializers
 
 User = get_user_model()

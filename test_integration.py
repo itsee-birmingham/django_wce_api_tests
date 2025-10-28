@@ -1,11 +1,13 @@
-import json
 import datetime
+import json
+
 from django.conf import settings as django_settings
-from django.utils import timezone
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth import get_user_model
+from django.utils import timezone
 from rest_framework.test import APIClient, APITestCase
+
 from api_tests import models
 
 User = get_user_model()
