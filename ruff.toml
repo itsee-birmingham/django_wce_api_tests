@@ -50,6 +50,10 @@ ignore = [
 	"D103",  # missing docstring in public function    
 ]
 
+"test_*.py" = [
+    "D"
+]
+
 
 [lint.pydocstyle]
 convention = "google"
