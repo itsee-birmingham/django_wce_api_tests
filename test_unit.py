@@ -1,13 +1,15 @@
 import datetime
-from django.utils import timezone
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.test.client import RequestFactory
-from rest_framework.request import Request
-from django.db.models import Q
-from api import views
-from api_tests import models, serializers
 from unittest.mock import patch
+
+from django.contrib.auth import get_user_model
+from django.db.models import Q
+from django.test import TestCase
+from django.test.client import RequestFactory
+from django.utils import timezone
+from rest_framework.request import Request
+
+from api import search_helpers, views
+from api_tests import models, serializers
 
 User = get_user_model()
 
@@ -18,104 +20,74 @@ class APIHelperTests(TestCase):
         user.save()
         return user
 
-    def test_get_count(self):
-        # with a query set
-        a1_data = {
-            'created_by': 'cat',
-            'created_time': timezone.now(),
-            'identifier': 'JS1',
-            'name': 'John Smith',
-            'age': 28,
-            'active': True,
-        }
-        models.Author.objects.create(**a1_data)
-        a2_data = {
-            'created_by': 'cat',
-            'created_time': timezone.now(),
-            'identifier': 'JS2',
-            'name': 'Jane Smart',
-            'age': 34,
-            'active': True,
-        }
-        models.Author.objects.create(**a2_data)
-
-        query_set = models.Author.objects.all()
-        count = views.get_count(query_set)
-        self.assertEqual(count, 2)
-
-        # and with a list
-        test_list = ['item', 'item']
-        count = views.get_count(test_list)
-        self.assertEqual(count, 2)
-
-    def test_get_date_field(self):
+    def test__get_date_field(self):
         expected_date = datetime.datetime.strptime('1900', '%Y').date()
-        date = views.get_date_field('>', '>1900')
+        date = search_helpers._get_date_field('>', '>1900')
         self.assertEqual(date, expected_date)
 
         expected_date = datetime.datetime.strptime('1900 12 31', '%Y %m %d').date()
-        date = views.get_date_field('<', '<1900')
+        date = search_helpers._get_date_field('<', '<1900')
         self.assertEqual(date, expected_date)
 
         # test what happens with bad data
         expected_date = '=1900'
-        date = views.get_date_field('<', '=1900')
+        date = search_helpers._get_date_field('<', '=1900')
         self.assertEqual(date, expected_date)
 
     def test_get_query_tuple(self):
         # this is testing the code and a few random selections from the operator_lookup dictionary
         # it is not really designed to test the dictionary - I think it is a constant
         expected_return = ('name__istartswith', 'Test')
-        query_tuple = views.get_query_tuple('TextField', 'name', 'Test*|i')
+        query_tuple = search_helpers.get_query_tuple('TextField', 'name', 'Test*|i')
         self.assertEqual(expected_return, query_tuple)
 
         expected_return = ('name__contains', 'Test')
-        query_tuple = views.get_query_tuple('CharField', 'name', '*Test*')
+        query_tuple = search_helpers.get_query_tuple('CharField', 'name', '*Test*')
         self.assertEqual(expected_return, query_tuple)
 
         expected_return = ('age__lte', '9')
-        query_tuple = views.get_query_tuple('IntegerField', 'age', '<=9')
+        query_tuple = search_helpers.get_query_tuple('IntegerField', 'age', '<=9')
         self.assertEqual(expected_return, query_tuple)
 
         expected_return = ('active', False)
-        query_tuple = views.get_query_tuple('BooleanField', 'active', 'false')
+        query_tuple = search_helpers.get_query_tuple('BooleanField', 'active', 'false')
         self.assertEqual(expected_return, query_tuple)
 
         expected_return = ('genres__contains', ['list'])
-        query_tuple = views.get_query_tuple('ArrayField', 'genres', 'list')
+        query_tuple = search_helpers.get_query_tuple('ArrayField', 'genres', 'list')
         self.assertEqual(expected_return, query_tuple)
 
         expected_return = ('genres__len__gt', '1')
-        query_tuple = views.get_query_tuple('ArrayField', 'genres', '_gt1')
+        query_tuple = search_helpers.get_query_tuple('ArrayField', 'genres', '_gt1')
         self.assertEqual(expected_return, query_tuple)
 
         expected_return = ('date_joined__gt', datetime.datetime.strptime('1900', '%Y').date())
-        query_tuple = views.get_query_tuple('DateField', 'date_joined', '>1900')
+        query_tuple = search_helpers.get_query_tuple('DateField', 'date_joined', '>1900')
         self.assertEqual(expected_return, query_tuple)
 
         expected_return = ('test', 'value')
-        query_tuple = views.get_query_tuple('OtherField', 'test', 'value')
+        query_tuple = search_helpers.get_query_tuple('OtherField', 'test', 'value')
         self.assertEqual(expected_return, query_tuple)
 
         expected_return = None
-        query_tuple = views.get_query_tuple('OtherField', 'test', '')
+        query_tuple = search_helpers.get_query_tuple('OtherField', 'test', '')
         self.assertEqual(expected_return, query_tuple)
 
     def test_get_related_model(self):
-        model_instance = views.get_related_model(models.Work, 'author__name')
+        model_instance = search_helpers.get_related_model(models.Work, 'author__name')
         self.assertEqual(model_instance, models.Author)
 
     def test_get_related_field_type(self):
-        related_field_type = views.get_related_field_type(models.Work, 'title')
+        related_field_type = search_helpers.get_related_field_type(models.Work, 'title')
         self.assertEqual(related_field_type, None)
 
-        related_field_type = views.get_related_field_type(models.Work, 'author__name')
+        related_field_type = search_helpers.get_related_field_type(models.Work, 'author__name')
         self.assertEqual(related_field_type, 'TextField')
 
-        related_field_type = views.get_related_field_type(models.Edition, 'work__author__name')
+        related_field_type = search_helpers.get_related_field_type(models.Edition, 'work__author__name')
         self.assertEqual(related_field_type, 'TextField')
 
-        related_field_type = views.get_related_field_type(models.Work, 'author__nonsense')
+        related_field_type = search_helpers.get_related_field_type(models.Work, 'author__nonsense')
         self.assertEqual(related_field_type, None)
 
     def test_get_field_filters(self):
@@ -131,7 +103,7 @@ class APIHelperTests(TestCase):
         expected_query = [expected_query]
         request = rf.get('/api/citations/author?identifier=J*')
         requestQuery = dict(request.GET)
-        query = views.get_field_filters(requestQuery, models.Author, 'filter')
+        query = search_helpers.get_field_filters(requestQuery, models.Author, 'filter')
         self.assertEqual(str(expected_query), str(query))
 
         # negative value in exclude mode
@@ -140,7 +112,7 @@ class APIHelperTests(TestCase):
         expected_query = [expected_query]
         request = rf.get('/api/citations/author?identifier=!J*')
         requestQuery = dict(request.GET)
-        query = views.get_field_filters(requestQuery, models.Author, 'exclude')
+        query = search_helpers.get_field_filters(requestQuery, models.Author, 'exclude')
         self.assertEqual(str(expected_query), str(query))
 
         # negative value in filter mode - which should return an empty query
@@ -148,7 +120,7 @@ class APIHelperTests(TestCase):
         expected_query = [expected_query]
         request = rf.get('/api/citations/author?identifier=!J*')
         requestQuery = dict(request.GET)
-        query = views.get_field_filters(requestQuery, models.Author, 'filter')
+        query = search_helpers.get_field_filters(requestQuery, models.Author, 'filter')
         self.assertEqual(str(expected_query), str(query))
 
         # now test list filters
@@ -160,7 +132,7 @@ class APIHelperTests(TestCase):
         expected_query = [expected_query]
         request = rf.get('/api/citations/author?identifier=JS1,JS2')
         requestQuery = dict(request.GET)
-        query = views.get_field_filters(requestQuery, models.Author, 'filter')
+        query = search_helpers.get_field_filters(requestQuery, models.Author, 'filter')
         self.assertEqual(str(expected_query), str(query))
 
         # positive value in filter mode with foreign key
@@ -169,7 +141,7 @@ class APIHelperTests(TestCase):
         expected_query = [expected_query]
         request = rf.get('/api/citations/work/?author__identifier=J*')
         requestQuery = dict(request.GET)
-        query = views.get_field_filters(requestQuery, models.Work, 'filter')
+        query = search_helpers.get_field_filters(requestQuery, models.Work, 'filter')
         self.assertEqual(str(expected_query), str(query))
 
         # positive value in filter mode with nonsense field
@@ -179,7 +151,7 @@ class APIHelperTests(TestCase):
         expected_query = [expected_query]
         request = rf.get('/api/citations/work/?nonsense=J*')
         requestQuery = dict(request.GET)
-        query = views.get_field_filters(requestQuery, models.Work, 'filter')
+        query = search_helpers.get_field_filters(requestQuery, models.Work, 'filter')
         self.assertEqual(str(expected_query), str(query))
 
     def test_getEtag(self):
@@ -194,9 +166,9 @@ class APIHelperTests(TestCase):
         a1 = models.Author.objects.create(**a1_data)
         rf = RequestFactory()
         request = Request(rf.get('/api/api_tests/author/{}'.format(a1.id)))
-        etag = views.get_etag(request)
+        etag = views._get_etag(request)
         self.assertEqual(etag, '*')
-        etag = views.get_etag(request, 'api_tests', 'author', a1.id)
+        etag = views._get_etag(request, 'api_tests', 'author', a1.id)
         self.assertEqual(etag, '1')
 
     def test_SelectPagePaginator(self):
@@ -293,24 +265,20 @@ class ItemListUnitTests(TestCase):
         item_list_view = views.ItemList()
 
         queryset = models.Author.objects.all().order_by('name')
-        position = item_list_view.get_offset_required(queryset, a1.id)
+        position = item_list_view._get_offset_required(queryset, a1.id)
         self.assertEqual(position, 2)
 
-        position = item_list_view.get_offset_required(queryset, a3.id)
+        position = item_list_view._get_offset_required(queryset, a3.id)
         self.assertEqual(position, 0)
 
-        position = item_list_view.get_offset_required(queryset, 99)
+        position = item_list_view._get_offset_required(queryset, 99)
         self.assertEqual(position, 0)
 
     @patch('django.apps.apps.get_model')
-    @patch('api.views.get_field_filters')
-    def test_get_queryset(self, mocked__get_field_filters, mocked__get_model):
-        q1 = Q(('name__contains', 'o'))
-        q2 = Q(('name__contains', 'm'))
-        mocked__get_field_filters.side_effect = [[q1, q2], [Q()]]
+    def test_get_queryset_and(self, mocked__get_model):
         mocked__get_model.return_value = models.Author
         rf = RequestFactory()
-        request = rf.get('/api/api_tests/author?name=*o*')
+        request = rf.get('/api/api_tests/author?name=*o*&name=*m*')
         a1_data = {
             'created_by': 'cat',
             'created_time': timezone.now(),
@@ -344,6 +312,44 @@ class ItemListUnitTests(TestCase):
         hits = item_list_view.get_queryset()
         self.assertEqual(len(hits), 1)
         self.assertEqual(hits[0].id, a1.id)
+
+    @patch('django.apps.apps.get_model')
+    def test_get_queryset_or(self, mocked__get_model):
+        mocked__get_model.return_value = models.Author
+        rf = RequestFactory()
+        request = rf.get('/api/api_tests/author?name=*o*,*m*')
+        a1_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS1',
+            'name': 'John Smith',
+            'age': 28,
+            'active': True,
+        }
+        models.Author.objects.create(**a1_data)
+        a2_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'JS2',
+            'name': 'Jane Smart',
+            'age': 34,
+            'active': True,
+        }
+        models.Author.objects.create(**a2_data)
+        a3_data = {
+            'created_by': 'cat',
+            'created_time': timezone.now(),
+            'identifier': 'AS3',
+            'name': 'Anna Stopes',
+            'age': 57,
+            'active': True,
+        }
+        models.Author.objects.create(**a3_data)
+        item_list_view = views.ItemList()
+        item_list_view.kwargs = {'app': 'api_tests', 'model': 'Author'}
+        item_list_view.request = request
+        hits = item_list_view.get_queryset()
+        self.assertEqual(len(hits), 3)
 
 
 class ItemDetailUnitTests(TestCase):
