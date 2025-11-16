@@ -1,4 +1,4 @@
-"""These models are made up purely for testing and are loosly bsaed on models that might be needed by publishers."""
+"""These models are made up purely for testing and are loosely based on models that might be needed by publishers."""
 
 from api.models import BaseModel
 from django.conf import settings
