@@ -92,7 +92,7 @@ class Decision(BaseModel):
 
 
 class Project(BaseModel):
-    """A managing editors project containd the books they are responsible for reviewing and publishing."""
+    """A managing editors project containing the books they are responsible for reviewing and publishing."""
 
     AVAILABILITY = 'public'
 
