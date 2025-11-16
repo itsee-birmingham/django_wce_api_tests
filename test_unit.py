@@ -1,6 +1,7 @@
 import datetime
 from unittest.mock import patch
 
+from api import search_helpers, views
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.test import TestCase
@@ -8,7 +9,6 @@ from django.test.client import RequestFactory
 from django.utils import timezone
 from rest_framework.request import Request
 
-from api import search_helpers, views
 from api_tests import models, serializers
 
 User = get_user_model()
@@ -234,7 +234,8 @@ class ItemListUnitTests(TestCase):
         serializer_class = item_list_view.get_serializer_class()
         self.assertEqual(serializer_class, serializers.WorkSerializer)
 
-    def test_get_offset_required(self):
+    def test__get_offset_required(self):
+        """Test the correct offset is returned when asking for a particular item to be on a page."""
         a1_data = {
             'created_by': 'cat',
             'created_time': timezone.now(),
@@ -276,6 +277,7 @@ class ItemListUnitTests(TestCase):
 
     @patch('django.apps.apps.get_model')
     def test_get_queryset_and(self, mocked__get_model):
+        """Test get a queryset with an AND query."""
         mocked__get_model.return_value = models.Author
         rf = RequestFactory()
         request = rf.get('/api/api_tests/author?name=*o*&name=*m*')
@@ -315,6 +317,7 @@ class ItemListUnitTests(TestCase):
 
     @patch('django.apps.apps.get_model')
     def test_get_queryset_or(self, mocked__get_model):
+        """Test get a queryset with an OR query."""
         mocked__get_model.return_value = models.Author
         rf = RequestFactory()
         request = rf.get('/api/api_tests/author?name=*o*,*m*')
@@ -353,7 +356,10 @@ class ItemListUnitTests(TestCase):
 
 
 class ItemDetailUnitTests(TestCase):
+    """Tests for the ItemDetail class view."""
+
     def test_get_serializer_class(self):
+        """Test that the correct serializer is returned in each case."""
         item_detail_view = views.ItemDetail()
         item_detail_view.kwargs = {'app': 'api_tests', 'model': 'author'}
         serializer_class = item_detail_view.get_serializer_class()

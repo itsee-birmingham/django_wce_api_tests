@@ -1,8 +1,10 @@
 import json
-from django.test import TestCase
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from django.test import TestCase
 from rest_framework.test import APIClient
+
 from api_tests import models
 
 User = get_user_model()
