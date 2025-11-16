@@ -51,7 +51,7 @@ class Work(BaseModel):
 
 
 class Review(BaseModel):
-    """An reviewers review of a book."""
+    """A reviewers review of a book."""
 
     AVAILABILITY = 'private'
 
